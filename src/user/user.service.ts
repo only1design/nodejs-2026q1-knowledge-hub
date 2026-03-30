@@ -1,4 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { ArticleService } from '../article/article.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
 import { User, UserRole } from './entities/user.entity';
@@ -7,16 +8,17 @@ import { randomUUID } from 'node:crypto';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly userRepository: UserRepository) {}
+  constructor(
+    private readonly userRepository: UserRepository,
+    private readonly articleService: ArticleService,
+  ) {}
 
   create(createUserDto: CreateUserDto) {
-    const { login, password, role } = createUserDto;
     const now = Date.now();
 
     return this.userRepository.create({
-      login,
-      password,
-      role: role ?? UserRole.VIEWER,
+      ...createUserDto,
+      role: createUserDto.role ?? UserRole.VIEWER,
       id: randomUUID(),
       version: 1,
       createdAt: now,
@@ -60,5 +62,9 @@ export class UserService {
     if (!this.userRepository.delete(id)) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
+
+    this.articleService.findAll({ authorId: id }).forEach((article) => {
+      this.articleService.update(article.id, { authorId: null });
+    });
   }
 }

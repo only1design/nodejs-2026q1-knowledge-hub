@@ -11,24 +11,17 @@ export class ArticleService {
   constructor(private readonly articleRepository: ArticleRepository) {}
 
   create(createArticleDto: CreateArticleDto) {
-    const { title, content, status, authorId, categoryId, tags } =
-      createArticleDto;
     const now = Date.now();
 
     return this.articleRepository.create({
-      title,
-      content,
-      status,
-      authorId,
-      categoryId,
-      tags,
+      ...createArticleDto,
       id: randomUUID(),
       createdAt: now,
       updatedAt: now,
     });
   }
 
-  findAll(query: ArticleQueryDto) {
+  findAll(query?: ArticleQueryDto) {
     let articles = this.articleRepository.findAll();
 
     if (query.tag) {
