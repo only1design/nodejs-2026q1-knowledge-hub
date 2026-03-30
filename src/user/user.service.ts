@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
-import { UserRole } from './entities/user.entity';
+import { User, UserRole } from './entities/user.entity';
 import { UserRepository } from './user.repository';
 import { randomUUID } from 'node:crypto';
 
@@ -10,14 +10,15 @@ export class UserService {
   constructor(private readonly userRepository: UserRepository) {}
 
   create(createUserDto: CreateUserDto) {
+    const { login, password, role } = createUserDto;
     const now = Date.now();
 
     return this.userRepository.create({
+      login,
+      password,
+      role: role ?? UserRole.VIEWER,
       id: randomUUID(),
-      login: createUserDto.login,
-      password: createUserDto.password,
       version: 1,
-      role: createUserDto.role ?? UserRole.VIEWER,
       createdAt: now,
       updatedAt: now,
     });
@@ -27,7 +28,7 @@ export class UserService {
     return this.userRepository.findAll();
   }
 
-  findOne(id: string) {
+  findOne(id: User['id']) {
     const user = this.userRepository.findById(id);
 
     if (!user) {
@@ -37,7 +38,7 @@ export class UserService {
     return user;
   }
 
-  updatePassword(id: string, updateUserPasswordDto: UpdateUserPasswordDto) {
+  updatePassword(id: User['id'], updateUserPasswordDto: UpdateUserPasswordDto) {
     const user = this.userRepository.findById(id);
 
     if (!user) {
@@ -55,7 +56,7 @@ export class UserService {
     }
   }
 
-  remove(id: string) {
+  remove(id: User['id']) {
     if (!this.userRepository.delete(id)) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }

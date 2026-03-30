@@ -10,5 +10,6 @@ import { UserController } from './user.controller';
     UserService,
     { provide: UserRepository, useClass: InMemoryUserRepository },
   ],
+  exports: [UserService],
 })
 export class UserModule {}

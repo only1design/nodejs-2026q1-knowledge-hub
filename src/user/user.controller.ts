@@ -37,7 +37,7 @@ export class UserController {
   @ApiResponse({ status: 200, description: 'User found' })
   @ApiResponse({ status: 400, description: 'Invalid UUID' })
   @ApiResponse({ status: 404, description: 'User not found' })
-  findOne(@Param('id', new ParseUUIDPipe()) id: string) {
+  findOne(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
     return this.userService.findOne(id);
   }
 
@@ -47,7 +47,7 @@ export class UserController {
   @ApiResponse({ status: 403, description: 'Wrong password' })
   @ApiResponse({ status: 404, description: 'User not found' })
   update(
-    @Param('id', new ParseUUIDPipe()) id: string,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
     @Body() updateUserPasswordDto: UpdateUserPasswordDto,
   ) {
     return this.userService.updatePassword(id, updateUserPasswordDto);
@@ -58,7 +58,7 @@ export class UserController {
   @ApiResponse({ status: 204, description: 'User deleted' })
   @ApiResponse({ status: 400, description: 'Invalid UUID' })
   @ApiResponse({ status: 404, description: 'User not found' })
-  remove(@Param('id', new ParseUUIDPipe()) id: string) {
+  remove(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
     this.userService.remove(id);
   }
 }
