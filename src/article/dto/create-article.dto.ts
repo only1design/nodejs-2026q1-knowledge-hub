@@ -1,8 +1,8 @@
 import {
-  ArrayNotEmpty,
   IsArray,
   IsEnum,
   IsNotEmpty,
+  IsOptional,
   IsString,
   IsUUID,
 } from 'class-validator';
@@ -22,18 +22,17 @@ export class CreateArticleDto {
   @IsNotEmpty()
   status: ArticleStatus;
 
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
   @IsUUID('4')
   authorId: User['id'];
 
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
   @IsUUID('4')
   categoryId: string;
 
   @IsArray()
-  @ArrayNotEmpty()
   @IsString({ each: true })
   @IsNotEmpty({ each: true })
   tags: string[];

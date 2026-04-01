@@ -5,12 +5,14 @@ import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
 import { User, UserRole } from './entities/user.entity';
 import { UserRepository } from './user.repository';
 import { randomUUID } from 'node:crypto';
+import { CommentService } from 'src/comment/comment.service';
 
 @Injectable()
 export class UserService {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly articleService: ArticleService,
+    private readonly commentService: CommentService,
   ) {}
 
   create(createUserDto: CreateUserDto) {
@@ -20,7 +22,6 @@ export class UserService {
       ...createUserDto,
       role: createUserDto.role ?? UserRole.VIEWER,
       id: randomUUID(),
-      version: 1,
       createdAt: now,
       updatedAt: now,
     });
@@ -50,7 +51,6 @@ export class UserService {
     if (user.password === updateUserPasswordDto.oldPassword) {
       return this.userRepository.update(id, {
         password: updateUserPasswordDto.newPassword,
-        version: user.version + 1,
         updatedAt: Date.now(),
       });
     } else {
@@ -65,6 +65,10 @@ export class UserService {
 
     this.articleService.findAll({ authorId: id }).forEach((article) => {
       this.articleService.update(article.id, { authorId: null });
+    });
+
+    this.commentService.findAll({ authorId: id }).forEach((comment) => {
+      this.commentService.remove(comment.id);
     });
   }
 }

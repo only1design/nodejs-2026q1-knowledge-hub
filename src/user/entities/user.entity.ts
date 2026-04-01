@@ -14,8 +14,6 @@ export class User {
   @Exclude()
   password: string;
 
-  version: number;
-
   role: UserRole;
 
   createdAt: number;

@@ -1,3 +1,4 @@
+import { Category } from '../../category/entities/category.entity';
 import { User } from '../../user/entities/user.entity';
 
 export enum ArticleStatus {
@@ -17,7 +18,7 @@ export class Article {
 
   authorId: User['id'] | null;
 
-  categoryId: string | null;
+  categoryId: Category['id'] | null;
 
   tags: string[];
 

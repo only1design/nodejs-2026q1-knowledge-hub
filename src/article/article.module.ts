@@ -1,4 +1,5 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
+import { CommentModule } from '../comment/comment.module';
 import { InMemoryArticleRepository } from './article-memory.repository';
 import { ArticleRepository } from './article.repository';
 import { ArticleService } from './article.service';
@@ -14,5 +15,6 @@ import { ArticleController } from './article.controller';
     },
   ],
   exports: [ArticleService],
+  imports: [forwardRef(() => CommentModule)],
 })
 export class ArticleModule {}
