@@ -10,6 +10,7 @@ import {
   HttpStatus,
   ParseUUIDPipe,
 } from '@nestjs/common';
+import { paginate } from '../common/paginate';
 import { CommentService } from './comment.service';
 import { CommentQueryDto } from './dto/comment-query.dto';
 import { CreateCommentDto } from './dto/create-comment.dto';
@@ -30,7 +31,7 @@ export class CommentController {
 
   @Get()
   findAll(@Query() query: CommentQueryDto) {
-    return this.commentService.findAll(query);
+    return paginate(this.commentService.findAll(query), query);
   }
 
   @Delete(':id')

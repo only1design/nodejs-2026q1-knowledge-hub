@@ -11,6 +11,7 @@ import {
   HttpStatus,
   Query,
 } from '@nestjs/common';
+import { paginate } from '../common/paginate';
 import { ArticleService } from './article.service';
 import { ArticleQueryDto } from './dto/article-query.dto';
 import { CreateArticleDto } from './dto/create-article.dto';
@@ -27,7 +28,7 @@ export class ArticleController {
 
   @Get()
   findAll(@Query() query: ArticleQueryDto) {
-    return this.articleService.findAll(query);
+    return paginate(this.articleService.findAll(query), query);
   }
 
   @Get(':id')

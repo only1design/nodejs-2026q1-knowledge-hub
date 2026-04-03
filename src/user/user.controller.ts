@@ -6,10 +6,13 @@ import {
   Param,
   Delete,
   Put,
+  Query,
   ParseUUIDPipe,
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
+import { PaginationQueryDto } from '../common/pagination-query.dto';
+import { paginate } from '../common/paginate';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
@@ -24,8 +27,8 @@ export class UserController {
   }
 
   @Get()
-  findAll() {
-    return this.userService.findAll();
+  findAll(@Query() query: PaginationQueryDto) {
+    return paginate(this.userService.findAll(), query);
   }
 
   @Get(':id')

@@ -9,7 +9,10 @@ import {
   Put,
   HttpCode,
   HttpStatus,
+  Query,
 } from '@nestjs/common';
+import { PaginationQueryDto } from '../common/pagination-query.dto';
+import { paginate } from '../common/paginate';
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
@@ -24,8 +27,8 @@ export class CategoryController {
   }
 
   @Get()
-  findAll() {
-    return this.categoryService.findAll();
+  findAll(@Query() query: PaginationQueryDto) {
+    return paginate(this.categoryService.findAll(), query);
   }
 
   @Get(':id')
