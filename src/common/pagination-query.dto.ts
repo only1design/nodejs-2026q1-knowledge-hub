@@ -1,5 +1,10 @@
-import { IsOptional, IsInt, Min } from 'class-validator';
+import { IsOptional, IsInt, Min, IsString, IsEnum } from 'class-validator';
 import { Type } from 'class-transformer';
+
+export enum SortBy {
+  'ASC' = 'asc',
+  'DESC' = 'desc',
+}
 
 export class PaginationQueryDto {
   @IsOptional()
@@ -13,4 +18,12 @@ export class PaginationQueryDto {
   @IsInt()
   @Min(1)
   readonly limit?: number;
+
+  @IsOptional()
+  @IsString()
+  readonly sortBy?: string;
+
+  @IsOptional()
+  @IsEnum(SortBy)
+  readonly order?: SortBy;
 }
