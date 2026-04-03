@@ -6,6 +6,7 @@ import {
   IsString,
   IsUUID,
 } from 'class-validator';
+import { Category } from '../../category/entities/category.entity';
 import { User } from '../../user/entities/user.entity';
 import { ArticleStatus } from '../entities/article.entity';
 
@@ -30,7 +31,7 @@ export class CreateArticleDto {
   @IsOptional()
   @IsString()
   @IsUUID('4')
-  categoryId: string;
+  categoryId: Category['id'];
 
   @IsArray()
   @IsString({ each: true })
