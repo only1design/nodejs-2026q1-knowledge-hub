@@ -32,20 +32,26 @@ export class ArticleService {
     });
   }
 
-  findAll(query?: ArticleQueryDto) {
+  findAll(query?: ArticleQueryDto & { authorId?: Article['authorId'] }) {
     let articles = this.articleRepository.findAll();
 
-    if (query.tag) {
+    if (query?.tag) {
       articles = articles.filter((article) => article.tags.includes(query.tag));
     }
 
-    if (query.status) {
+    if (query?.status) {
       articles = articles.filter((article) => article.status === query.status);
     }
 
-    if (query.categoryId) {
+    if (query?.categoryId) {
       articles = articles.filter(
         (article) => article.categoryId === query.categoryId,
+      );
+    }
+
+    if (query?.authorId) {
+      articles = articles.filter(
+        (article) => article.authorId === query.authorId,
       );
     }
 
