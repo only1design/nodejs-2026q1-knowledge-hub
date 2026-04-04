@@ -6,7 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "engines": {
-    "node": ">=22.14.0"
+    "node": "24.14.0"
   },
   "scripts": {
     "prebuild": "rimraf dist",
@@ -36,7 +36,7 @@
     "bcrypt": "^5.1.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
-    "dotenv": "^16.4.5",
+    "dotenv": "^16.6.1",
     "http-status-codes": "^2.2.0",
     "reflect-metadata": "^0.2.1",
     "rimraf": "^5.0.5",

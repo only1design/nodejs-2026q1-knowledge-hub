@@ -1,3 +1,5 @@
+import 'dotenv/config';
+
 import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
 import { load } from 'js-yaml';
 import { NestFactory, Reflector } from '@nestjs/core';
@@ -21,6 +23,6 @@ async function bootstrap() {
   const document = load(readFileSync(path.resolve('doc/api.yaml'), 'utf8'));
   SwaggerModule.setup('doc', app, document);
 
-  await app.listen(4000);
+  await app.listen(process.env.PORT || 4000);
 }
 bootstrap();
