@@ -94,3 +94,24 @@ npm run format
 Press <kbd>F5</kbd> to debug.
 
 For more information, visit: https://code.visualstudio.com/docs/editor/debugging
+
+## Docker
+
+Application image size: 65.8 MB (compressed) - 
+[Docker Hub Repository](https://hub.docker.com/repository/docker/245091236523498/knowledge-hub-app/general)
+
+The Docker Scout scan revealed no critical (C) vulnerabilities. See the full report in [scout-report.txt](scout-report.txt).
+
+Set up the .env file with the required environment variables before starting Docker container.
+
+To run application using docker.
+
+```
+docker-compose up --build
+```
+
+Use debug profile to start adminer database management tool. Then you can hit http://localhost:8080 in your browser.
+
+```
+docker-compose --profile debug up --build
+```

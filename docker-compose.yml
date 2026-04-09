@@ -1,0 +1,61 @@
+name: knowledge-hub
+
+services:
+  app:
+    build:
+      context: .
+      args:
+        PORT: ${PORT}
+    env_file:
+      - .env
+    ports:
+      - "${PORT}:${PORT}"
+    depends_on:
+      db:
+        condition: service_started
+    healthcheck:
+      test: [ "CMD", "wget", "-qO-", "http://localhost:${PORT}/" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: on-failure:5
+    networks:
+      - db-network
+
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    user: postgres
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    expose:
+      - ${POSTGRES_PORT}
+    healthcheck:
+      test: [ "CMD", "pg_isready" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 3s
+    networks:
+      - db-network
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+    networks:
+      - db-network
+    profiles:
+      - debug
+
+volumes:
+ db-data:
+
+networks:
+  db-network:
+    driver: bridge
