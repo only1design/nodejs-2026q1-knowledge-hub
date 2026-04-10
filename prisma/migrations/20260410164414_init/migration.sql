@@ -10,8 +10,8 @@ CREATE TABLE "User" (
     "login" TEXT NOT NULL,
     "password" TEXT NOT NULL,
     "role" "Role" NOT NULL,
-    "createdAt" INTEGER NOT NULL,
-    "updatedAt" INTEGER NOT NULL,
+    "createdAt" BIGINT NOT NULL,
+    "updatedAt" BIGINT NOT NULL,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
@@ -24,8 +24,8 @@ CREATE TABLE "Article" (
     "status" "ArticleStatus" NOT NULL,
     "authorId" TEXT,
     "categoryId" TEXT,
-    "createdAt" INTEGER NOT NULL,
-    "updatedAt" INTEGER NOT NULL,
+    "createdAt" BIGINT NOT NULL,
+    "updatedAt" BIGINT NOT NULL,
 
     CONSTRAINT "Article_pkey" PRIMARY KEY ("id")
 );
@@ -45,7 +45,7 @@ CREATE TABLE "Comment" (
     "content" TEXT NOT NULL,
     "authorId" TEXT,
     "articleId" TEXT NOT NULL,
-    "createdAt" INTEGER NOT NULL,
+    "createdAt" BIGINT NOT NULL,
 
     CONSTRAINT "Comment_pkey" PRIMARY KEY ("id")
 );

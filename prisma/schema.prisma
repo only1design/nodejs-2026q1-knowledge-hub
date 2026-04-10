@@ -14,12 +14,12 @@ enum Role {
 }
 
 model User {
-  id        String @id @unique
+  id        String @id @unique @default(uuid(4))
   login     String
   password  String
   role      Role
-  createdAt Int
-  updatedAt Int
+  createdAt BigInt
+  updatedAt BigInt
 
   articles Article[]
   comments Comment[]
@@ -32,14 +32,14 @@ enum ArticleStatus {
 }
 
 model Article {
-  id         String        @id @unique
+  id         String        @id @unique @default(uuid(4))
   title      String
   content    String
   status     ArticleStatus
   authorId   String?
   categoryId String?
-  createdAt  Int
-  updatedAt  Int
+  createdAt  BigInt
+  updatedAt  BigInt
 
   author   User?     @relation(fields: [authorId], references: [id], onDelete: SetNull)
   category Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
@@ -48,7 +48,7 @@ model Article {
 }
 
 model Category {
-  id          String @id @unique
+  id          String @id @unique @default(uuid(4))
   name        String
   description String
 
@@ -56,18 +56,18 @@ model Category {
 }
 
 model Comment {
-  id        String  @id @unique
+  id        String  @id @unique @default(uuid(4))
   content   String
   authorId  String?
   articleId String
-  createdAt Int
+  createdAt BigInt
 
   author  User?   @relation(fields: [authorId], references: [id], onDelete: Cascade)
   article Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
 }
 
 model Tag {
-  id   String @id @unique
+  id   String @id @unique @default(uuid(4))
   name String @unique
 
   articles Article[]
