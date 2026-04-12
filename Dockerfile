@@ -50,16 +50,16 @@ COPY package.json ./
 # Copy open API documentation.
 COPY doc ./doc
 
-# Copy prisma schema and config for prisma generate (runs via postinstall)
-COPY prisma ./prisma
-COPY prisma.config.ts ./
-
 RUN --mount=type=bind,source=package-lock.json,target=package-lock.json \
     --mount=type=cache,target=/root/.npm,sharing=locked \
-    npm ci --omit=dev
+    npm ci --omit=dev --ignore-scripts && \
+    rm -rf node_modules/prisma node_modules/@prisma/studio-core \
+           node_modules/@prisma/dev node_modules/typescript \
+           node_modules/@electric-sql node_modules/effect
 
-# Copy the built application from the build stage into the image.
+# Copy the built application and generated prisma client from the build stage.
 COPY --from=build /usr/src/app/dist ./dist
+COPY --from=build /usr/src/app/generated ./generated
 
 # Expose the port that the application listens on.
 EXPOSE $PORT

@@ -97,7 +97,7 @@ For more information, visit: https://code.visualstudio.com/docs/editor/debugging
 
 ## Docker & Database
 
-Application image size: 65.8 MB (compressed) -
+Application image size: 101.18 MB (Compressed) and 492.98 MB (Plain)-
 [Docker Hub Repository](https://hub.docker.com/repository/docker/245091236523498/knowledge-hub-app/general)
 
 The Docker Scout scan revealed no critical (C) vulnerabilities. See the full report in [scout-report.txt](scout-report.txt).
@@ -110,19 +110,18 @@ The Docker Scout scan revealed no critical (C) vulnerabilities. See the full rep
 cp .env.example .env
 ```
 
-2. Configure `DATABASE_URL` in `.env` depending on how you run the app:
+2. `DATABASE_URL` in `.env` should use `localhost` — this is used both for local development and for running Prisma CLI commands from the host machine:
 
-| Scenario | `POSTGRES_HOST` | `DATABASE_URL` example |
-|---|---|---|
-| **Docker Compose** (app + db in containers) | `db` (docker service name) | `postgresql://postgres:postgres@db:5432/knowledge_hub` |
-| **Local dev** (app on host, db in container or local) | `localhost` | `postgresql://postgres:postgres@localhost:5432/knowledge_hub` |
+```
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/knowledge_hub
+```
 
-> Inside Docker network containers communicate by service name (`db`).
-> From the host machine, use `localhost` since the port is forwarded via `ports` in docker-compose.
+> The app container in Docker Compose overrides `DATABASE_URL` via `docker-compose.yml` environment to use the `db` service name for internal Docker network communication.
+> From the host machine, `localhost` works because the database port is forwarded via `ports` in docker-compose.
 
 ### Running with Docker Compose
 
-Start all services (app + PostgreSQL). Migrations are applied automatically on startup.
+Start all services (app + PostgreSQL):
 
 ```
 docker compose up --build
@@ -136,7 +135,15 @@ docker compose --profile debug up --build
 
 ### Database commands
 
-Run seed (populate database with initial data) — execute from the host machine with `localhost` in `DATABASE_URL`:
+All Prisma CLI commands run from the host machine using `localhost` in `DATABASE_URL`.
+
+Apply pending migrations (run before first start or after schema changes):
+
+```
+npx prisma migrate deploy
+```
+
+Run seed (populate database with initial data):
 
 ```
 npx prisma db seed
@@ -146,12 +153,6 @@ Create a new migration after schema changes:
 
 ```
 npx prisma migrate dev --name <migration_name>
-```
-
-Apply pending migrations (runs automatically in Docker on startup):
-
-```
-npx prisma migrate deploy
 ```
 
 Open Prisma Studio (visual database browser):

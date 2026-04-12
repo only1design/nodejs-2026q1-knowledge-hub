@@ -45,7 +45,6 @@
     "http-status-codes": "^2.2.0",
     "nestjs-cls": "^6.2.0",
     "pg": "^8.20.0",
-    "prisma": "^7.7.0",
     "reflect-metadata": "^0.2.1",
     "rxjs": "^7.8.1",
     "uuid": "^9.0.1"
@@ -65,6 +64,7 @@
     "@typescript-eslint/eslint-plugin": "^7.1.1",
     "@typescript-eslint/parser": "^7.1.1",
     "cross-env": "^7.0.3",
+    "prisma": "^7.7.0",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.1.3",
