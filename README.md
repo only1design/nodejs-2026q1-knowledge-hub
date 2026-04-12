@@ -43,6 +43,18 @@ To run only one of all test suites
 npm run test -- <path to suite>
 ```
 
+To run all unit tests
+
+```
+npm run test:unit
+```
+
+To run only specific unit test suite
+
+```
+npm run test:unit -- <path to suite>
+```
+
 To run all test with authorization
 
 ```
