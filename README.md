@@ -95,23 +95,67 @@ Press <kbd>F5</kbd> to debug.
 
 For more information, visit: https://code.visualstudio.com/docs/editor/debugging
 
-## Docker
+## Docker & Database
 
-Application image size: 65.8 MB (compressed) - 
+Application image size: 65.8 MB (compressed) -
 [Docker Hub Repository](https://hub.docker.com/repository/docker/245091236523498/knowledge-hub-app/general)
 
 The Docker Scout scan revealed no critical (C) vulnerabilities. See the full report in [scout-report.txt](scout-report.txt).
 
-Set up the .env file with the required environment variables before starting Docker container.
+### Setup
 
-To run application using docker.
-
-```
-docker-compose up --build
-```
-
-Use debug profile to start adminer database management tool. Then you can hit http://localhost:8080 in your browser.
+1. Copy `.env.example` to `.env` and fill in the values:
 
 ```
-docker-compose --profile debug up --build
+cp .env.example .env
+```
+
+2. Configure `DATABASE_URL` in `.env` depending on how you run the app:
+
+| Scenario | `POSTGRES_HOST` | `DATABASE_URL` example |
+|---|---|---|
+| **Docker Compose** (app + db in containers) | `db` (docker service name) | `postgresql://postgres:postgres@db:5432/knowledge_hub` |
+| **Local dev** (app on host, db in container or local) | `localhost` | `postgresql://postgres:postgres@localhost:5432/knowledge_hub` |
+
+> Inside Docker network containers communicate by service name (`db`).
+> From the host machine, use `localhost` since the port is forwarded via `ports` in docker-compose.
+
+### Running with Docker Compose
+
+Start all services (app + PostgreSQL). Migrations are applied automatically on startup.
+
+```
+docker compose up --build
+```
+
+Use debug profile to start Adminer database management tool at http://localhost:8080:
+
+```
+docker compose --profile debug up --build
+```
+
+### Database commands
+
+Run seed (populate database with initial data) — execute from the host machine with `localhost` in `DATABASE_URL`:
+
+```
+npx prisma db seed
+```
+
+Create a new migration after schema changes:
+
+```
+npx prisma migrate dev --name <migration_name>
+```
+
+Apply pending migrations (runs automatically in Docker on startup):
+
+```
+npx prisma migrate deploy
+```
+
+Open Prisma Studio (visual database browser):
+
+```
+npx prisma studio
 ```
