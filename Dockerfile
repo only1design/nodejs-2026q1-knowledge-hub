@@ -17,6 +17,10 @@ WORKDIR /usr/src/app
 # Create a stage for installing production dependecies.
 FROM base AS build
 
+# Copy prisma schema and config for prisma generate (runs via postinstall)
+COPY prisma ./prisma
+COPY prisma.config.ts ./
+
 # Download dependencies as a separate step to take advantage of Docker's caching.
 # Leverage a cache mount to /root/.npm to speed up subsequent builds.
 # Leverage bind mounts to package.json and package-lock.json to avoid having to copy them
@@ -46,19 +50,16 @@ COPY package.json ./
 # Copy open API documentation.
 COPY doc ./doc
 
-# Download dependencies as a separate step to take advantage of Docker's caching.
-# Leverage a cache mount to /root/.npm to speed up subsequent builds.
-# Leverage bind mounts package-lock.json to avoid having to copy it
-# into this layer.
+# Copy prisma schema and config for prisma generate (runs via postinstall)
+COPY prisma ./prisma
+COPY prisma.config.ts ./
+
 RUN --mount=type=bind,source=package-lock.json,target=package-lock.json \
     --mount=type=cache,target=/root/.npm,sharing=locked \
-    npm ci --omit=dev && \
-    npm cache clean --force
+    npm ci --omit=dev
 
-# Copy the production dependencies from the deps stage and also
-# the built application from the build stage into the image.
+# Copy the built application from the build stage into the image.
 COPY --from=build /usr/src/app/dist ./dist
-COPY --from=build /usr/src/app/generated ./generated
 
 # Expose the port that the application listens on.
 EXPOSE $PORT
