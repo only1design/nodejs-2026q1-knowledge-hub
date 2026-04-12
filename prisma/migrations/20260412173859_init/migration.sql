@@ -1,15 +1,15 @@
 -- CreateEnum
-CREATE TYPE "Role" AS ENUM ('ADMIN', 'EDITOR', 'VIEWER');
+CREATE TYPE "UserRole" AS ENUM ('admin', 'editor', 'viewer');
 
 -- CreateEnum
-CREATE TYPE "ArticleStatus" AS ENUM ('DRAFT', 'PUBLISHED', 'ARCHIVED');
+CREATE TYPE "ArticleStatus" AS ENUM ('draft', 'published', 'archived');
 
 -- CreateTable
 CREATE TABLE "User" (
     "id" TEXT NOT NULL,
     "login" TEXT NOT NULL,
     "password" TEXT NOT NULL,
-    "role" "Role" NOT NULL,
+    "role" "UserRole" NOT NULL DEFAULT 'viewer',
     "createdAt" BIGINT NOT NULL,
     "updatedAt" BIGINT NOT NULL,
 

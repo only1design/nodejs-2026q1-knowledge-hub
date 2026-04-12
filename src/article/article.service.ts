@@ -7,8 +7,7 @@ import {
 } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import { CommentService } from '../comment/comment.service';
-import { ArticleRepository } from './article.repository';
-import { ArticleQueryDto } from './dto/article-query.dto';
+import { ArticleFilter, ArticleRepository } from './article.repository';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
 import { Article } from './entities/article.entity';
@@ -21,10 +20,10 @@ export class ArticleService {
     private readonly commentService: CommentService,
   ) {}
 
-  create(createArticleDto: CreateArticleDto) {
-    const now = Date.now();
+  async create(createArticleDto: CreateArticleDto) {
+    const now = BigInt(Date.now());
 
-    return this.articleRepository.create({
+    return await this.articleRepository.create({
       ...createArticleDto,
       id: randomUUID(),
       createdAt: now,
@@ -32,34 +31,12 @@ export class ArticleService {
     });
   }
 
-  findAll(query?: ArticleQueryDto & { authorId?: Article['authorId'] }) {
-    let articles = this.articleRepository.findAll();
-
-    if (query?.tag) {
-      articles = articles.filter((article) => article.tags.includes(query.tag));
-    }
-
-    if (query?.status) {
-      articles = articles.filter((article) => article.status === query.status);
-    }
-
-    if (query?.categoryId) {
-      articles = articles.filter(
-        (article) => article.categoryId === query.categoryId,
-      );
-    }
-
-    if (query?.authorId) {
-      articles = articles.filter(
-        (article) => article.authorId === query.authorId,
-      );
-    }
-
-    return articles;
+  async findAll(query?: ArticleFilter) {
+    return await this.articleRepository.findAll(query);
   }
 
-  findOne(id: Article['id']) {
-    const article = this.articleRepository.findById(id);
+  async findOne(id: Article['id']) {
+    const article = await this.articleRepository.findById(id);
 
     if (!article) {
       throw new HttpException('Article not found', HttpStatus.NOT_FOUND);
@@ -68,29 +45,31 @@ export class ArticleService {
     return article;
   }
 
-  update(id: Article['id'], updateArticleDto: UpdateArticleDto) {
-    const article = this.articleRepository.findById(id);
+  async update(id: Article['id'], updateArticleDto: UpdateArticleDto) {
+    const article = await this.articleRepository.findById(id);
 
     if (!article) {
       throw new HttpException('Article not found', HttpStatus.NOT_FOUND);
     }
 
-    article.updatedAt = Date.now();
+    article.updatedAt = BigInt(Date.now());
 
-    return this.articleRepository.update(id, updateArticleDto);
+    return await this.articleRepository.update(id, updateArticleDto);
   }
 
-  remove(id: Article['id']) {
-    if (!this.articleRepository.delete(id)) {
+  async remove(id: Article['id']) {
+    if (!(await this.articleRepository.delete(id))) {
       throw new HttpException('Article not found', HttpStatus.NOT_FOUND);
     }
 
-    this.commentService.findAll({ articleId: id }).forEach((comment) => {
-      this.commentService.remove(comment.id);
-    });
+    (await this.commentService.findAll({ articleId: id })).forEach(
+      (comment) => {
+        this.commentService.remove(comment.id);
+      },
+    );
   }
 
-  exist(id: Article['id']): boolean {
-    return Boolean(this.articleRepository.findById(id));
+  async exist(id: Article['id']) {
+    return Boolean(await this.articleRepository.findById(id));
   }
 }

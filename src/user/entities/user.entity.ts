@@ -1,10 +1,5 @@
 import { Exclude } from 'class-transformer';
-
-export enum UserRole {
-  ADMIN = 'ADMIN',
-  EDITOR = 'EDITOR',
-  VIEWER = 'VIEWER',
-}
+import { UserRole } from 'generated/prisma/enums';
 
 export class User {
   id: string;
@@ -16,16 +11,7 @@ export class User {
 
   role: UserRole;
 
-  createdAt: number;
+  createdAt: bigint;
 
-  updatedAt: number;
-  //
-  // constructor(partial: Partial<User>) {
-  //   Object.assign(this, partial);
-  //
-  //   const now = Date.now();
-  //   this.createdAt = now;
-  //   this.updatedAt = now;
-  //   this.id = crypto.randomUUID();
-  // }
+  updatedAt: bigint;
 }

@@ -58,6 +58,7 @@ RUN --mount=type=bind,source=package-lock.json,target=package-lock.json \
 # Copy the production dependencies from the deps stage and also
 # the built application from the build stage into the image.
 COPY --from=build /usr/src/app/dist ./dist
+COPY --from=build /usr/src/app/generated ./generated
 
 # Expose the port that the application listens on.
 EXPOSE $PORT

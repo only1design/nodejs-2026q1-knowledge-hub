@@ -9,7 +9,7 @@ const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
-  const now = Date.now();
+  const now = BigInt(Date.now());
 
   const aliceId = '2ff4bc32-302a-459c-9ded-40899358194a';
   const alice = await prisma.user.upsert({
@@ -19,7 +19,7 @@ async function main() {
       id: aliceId,
       login: 'alice',
       password: 'alice123',
-      role: 'ADMIN',
+      role: 'admin',
       createdAt: now,
       updatedAt: now,
     },
@@ -33,7 +33,7 @@ async function main() {
       id: davidId,
       login: 'david',
       password: 'david123',
-      role: 'EDITOR',
+      role: 'editor',
       createdAt: now,
       updatedAt: now,
     },
@@ -120,7 +120,7 @@ async function main() {
         id: '12f4bc32-302a-459c-9ded-40899358194a',
         title: 'Getting Started with Prisma',
         content: 'A comprehensive guide to using Prisma ORM with NestJS',
-        status: 'PUBLISHED',
+        status: 'published',
         authorId: aliceId,
         categoryId: categories[0].id,
         createdAt: now,
@@ -135,7 +135,7 @@ async function main() {
         id: '13f4bc32-302a-459c-9ded-40899358194a',
         title: 'Breaking: New Node.js Release',
         content: 'Node.js 24 has been released with exciting new features',
-        status: 'PUBLISHED',
+        status: 'published',
         authorId: davidId,
         categoryId: categories[1].id,
         createdAt: now,
@@ -150,7 +150,7 @@ async function main() {
         id: '14f4bc32-302a-459c-9ded-40899358194a',
         title: 'Football Season Recap',
         content: 'A look back at the highlights of the football season',
-        status: 'ARCHIVED',
+        status: 'archived',
         authorId: aliceId,
         categoryId: categories[2].id,
         createdAt: now,
@@ -166,7 +166,7 @@ async function main() {
         title: 'Docker Best Practices',
         content:
           'Draft article about Docker multi-stage builds and optimization',
-        status: 'DRAFT',
+        status: 'draft',
         authorId: davidId,
         categoryId: categories[0].id,
         createdAt: now,
@@ -181,7 +181,7 @@ async function main() {
         id: '16f4bc32-302a-459c-9ded-40899358194a',
         title: 'Tennis Grand Slam Results',
         content: 'Coverage of the latest Grand Slam tournament',
-        status: 'PUBLISHED',
+        status: 'published',
         authorId: aliceId,
         categoryId: categories[2].id,
         createdAt: now,

@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ArticleModule } from '../article/article.module';
-import { InMemoryCategoryRepository } from './category-memory.repository';
+import { CategoryDbRepository } from './category-db.repository';
 import { CategoryRepository } from './category.repository';
 import { CategoryService } from './category.service';
 import { CategoryController } from './category.controller';
@@ -11,7 +11,7 @@ import { CategoryController } from './category.controller';
     CategoryService,
     {
       provide: CategoryRepository,
-      useClass: InMemoryCategoryRepository,
+      useClass: CategoryDbRepository,
     },
   ],
   exports: [CategoryService],

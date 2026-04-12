@@ -22,7 +22,7 @@ export class Article {
 
   tags: string[];
 
-  createdAt: number;
+  createdAt: bigint;
 
-  updatedAt: number;
+  updatedAt: bigint;
 }

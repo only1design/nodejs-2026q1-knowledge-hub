@@ -22,31 +22,31 @@ export class ArticleController {
   constructor(private readonly articleService: ArticleService) {}
 
   @Post()
-  create(@Body() createArticleDto: CreateArticleDto) {
-    return this.articleService.create(createArticleDto);
+  async create(@Body() createArticleDto: CreateArticleDto) {
+    return await this.articleService.create(createArticleDto);
   }
 
   @Get()
-  findAll(@Query() query: ArticleQueryDto) {
-    return paginate(this.articleService.findAll(query), query);
+  async findAll(@Query() query: ArticleQueryDto) {
+    return paginate(await this.articleService.findAll(query), query);
   }
 
   @Get(':id')
-  findOne(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
-    return this.articleService.findOne(id);
+  async findOne(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
+    return await this.articleService.findOne(id);
   }
 
   @Put(':id')
-  update(
+  async update(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
     @Body() updateArticleDto: UpdateArticleDto,
   ) {
-    return this.articleService.update(id, updateArticleDto);
+    return await this.articleService.update(id, updateArticleDto);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  remove(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
-    this.articleService.remove(id);
+  async remove(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
+    await this.articleService.remove(id);
   }
 }

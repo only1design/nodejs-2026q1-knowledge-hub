@@ -21,23 +21,23 @@ export class CommentService {
     private readonly articleService: ArticleService,
   ) {}
 
-  create(createCommentDto: CreateCommentDto) {
-    if (!this.articleService.exist(createCommentDto.articleId)) {
+  async create(createCommentDto: CreateCommentDto) {
+    if (!(await this.articleService.exist(createCommentDto.articleId))) {
       throw new HttpException(
         'Article is not exist',
         HttpStatus.UNPROCESSABLE_ENTITY,
       );
     }
 
-    return this.commentRepository.create({
+    return await this.commentRepository.create({
       ...createCommentDto,
       id: randomUUID(),
       createdAt: Date.now(),
     });
   }
 
-  findOne(id: Comment['id']) {
-    const comment = this.commentRepository.findById(id);
+  async findOne(id: Comment['id']) {
+    const comment = await this.commentRepository.findById(id);
 
     if (!comment) {
       throw new HttpException('Comment not found', HttpStatus.NOT_FOUND);
@@ -46,8 +46,11 @@ export class CommentService {
     return comment;
   }
 
-  findAll(filters?: { articleId?: Article['id']; authorId?: User['id'] }) {
-    let comments = this.commentRepository.findAll();
+  async findAll(filters?: {
+    articleId?: Article['id'];
+    authorId?: User['id'];
+  }) {
+    let comments = await this.commentRepository.findAll();
 
     if (filters.articleId) {
       comments = comments.filter(
@@ -64,8 +67,8 @@ export class CommentService {
     return comments;
   }
 
-  remove(id: Comment['id']) {
-    if (!this.commentRepository.delete(id)) {
+  async remove(id: Comment['id']) {
+    if (!(await this.commentRepository.delete(id))) {
       throw new HttpException('Comment not found', HttpStatus.NOT_FOUND);
     }
   }

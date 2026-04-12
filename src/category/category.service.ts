@@ -13,19 +13,19 @@ export class CategoryService {
     private readonly articleService: ArticleService,
   ) {}
 
-  create(createCategoryDto: CreateCategoryDto) {
-    return this.categoryRepository.create({
+  async create(createCategoryDto: CreateCategoryDto) {
+    return await this.categoryRepository.create({
       ...createCategoryDto,
       id: randomUUID(),
     });
   }
 
-  findAll() {
-    return this.categoryRepository.findAll();
+  async findAll() {
+    return await this.categoryRepository.findAll();
   }
 
-  findOne(id: Category['id']) {
-    const category = this.categoryRepository.findById(id);
+  async findOne(id: Category['id']) {
+    const category = await this.categoryRepository.findById(id);
 
     if (!category) {
       throw new HttpException('Category not found', HttpStatus.NOT_FOUND);
@@ -34,23 +34,25 @@ export class CategoryService {
     return category;
   }
 
-  update(id: Category['id'], updateCategoryDto: UpdateCategoryDto) {
-    const category = this.categoryRepository.findById(id);
+  async update(id: Category['id'], updateCategoryDto: UpdateCategoryDto) {
+    const category = await this.categoryRepository.findById(id);
 
     if (!category) {
       throw new HttpException('Category not found', HttpStatus.NOT_FOUND);
     }
 
-    return this.categoryRepository.update(id, updateCategoryDto);
+    return await this.categoryRepository.update(id, updateCategoryDto);
   }
 
-  remove(id: Category['id']) {
-    if (!this.categoryRepository.delete(id)) {
+  async remove(id: Category['id']) {
+    if (!(await this.categoryRepository.delete(id))) {
       throw new HttpException('Category not found', HttpStatus.NOT_FOUND);
     }
 
-    this.articleService.findAll({ categoryId: id }).forEach((article) => {
-      this.articleService.update(article.id, { categoryId: null });
-    });
+    (await this.articleService.findAll({ categoryId: id })).forEach(
+      (article) => {
+        this.articleService.update(article.id, { categoryId: null });
+      },
+    );
   }
 }
