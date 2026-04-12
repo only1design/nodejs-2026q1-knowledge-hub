@@ -73,6 +73,9 @@ CREATE UNIQUE INDEX "User_id_key" ON "User"("id");
 CREATE UNIQUE INDEX "Article_id_key" ON "Article"("id");
 
 -- CreateIndex
+CREATE INDEX "Article_status_categoryId_idx" ON "Article"("status", "categoryId");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Category_id_key" ON "Category"("id");
 
 -- CreateIndex
@@ -83,6 +86,9 @@ CREATE UNIQUE INDEX "Tag_id_key" ON "Tag"("id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Tag_name_key" ON "Tag"("name");
+
+-- CreateIndex
+CREATE INDEX "Tag_name_idx" ON "Tag"("name");
 
 -- CreateIndex
 CREATE INDEX "_ArticleToTag_B_index" ON "_ArticleToTag"("B");

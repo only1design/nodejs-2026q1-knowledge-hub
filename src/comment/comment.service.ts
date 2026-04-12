@@ -7,9 +7,7 @@ import {
 } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import { ArticleService } from '../article/article.service';
-import { Article } from '../article/entities/article.entity';
-import { User } from '../user/entities/user.entity';
-import { CommentRepository } from './comment.repository';
+import { CommentFilter, CommentRepository } from './comment.repository';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { Comment } from './entities/comment.entity';
 
@@ -32,7 +30,7 @@ export class CommentService {
     return await this.commentRepository.create({
       ...createCommentDto,
       id: randomUUID(),
-      createdAt: Date.now(),
+      createdAt: BigInt(Date.now()),
     });
   }
 
@@ -46,25 +44,8 @@ export class CommentService {
     return comment;
   }
 
-  async findAll(filters?: {
-    articleId?: Article['id'];
-    authorId?: User['id'];
-  }) {
-    let comments = await this.commentRepository.findAll();
-
-    if (filters.articleId) {
-      comments = comments.filter(
-        (comment) => comment.articleId === filters.articleId,
-      );
-    }
-
-    if (filters.authorId) {
-      comments = comments.filter(
-        (comment) => comment.authorId === filters.authorId,
-      );
-    }
-
-    return comments;
+  async findAll(filters?: CommentFilter) {
+    return await this.commentRepository.findAll(filters);
   }
 
   async remove(id: Comment['id']) {

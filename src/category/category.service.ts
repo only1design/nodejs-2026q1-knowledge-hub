@@ -1,3 +1,4 @@
+import { Transactional } from '@nestjs-cls/transactional';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
@@ -30,6 +31,7 @@ export class CategoryService {
     return category;
   }
 
+  @Transactional()
   async update(id: Category['id'], updateCategoryDto: UpdateCategoryDto) {
     const category = await this.categoryRepository.findById(id);
 

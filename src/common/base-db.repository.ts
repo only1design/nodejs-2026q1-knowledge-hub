@@ -1,19 +1,19 @@
-import { Inject } from '@nestjs/common';
+import { TransactionHost } from '@nestjs-cls/transactional';
+import { TransactionalAdapterPrisma } from '@nestjs-cls/transactional-adapter-prisma';
 import { Prisma } from '../../generated/prisma/client';
-import { PrismaService } from '../prisma/prisma.service';
 import { BaseRepository } from './base.repository';
 
 export class DbBaseRepository<T extends { id: string }>
   implements BaseRepository<T>
 {
   constructor(
-    @Inject(PrismaService) private readonly prisma: PrismaService,
+    protected readonly txHost: TransactionHost<TransactionalAdapterPrisma>,
     private readonly modelName: Prisma.ModelName,
     private readonly entityClass: new () => T,
   ) {}
 
   protected get model() {
-    return this.prisma[this.modelName];
+    return this.txHost.tx[this.modelName];
   }
 
   protected toEntity(data: any): T {

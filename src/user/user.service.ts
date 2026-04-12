@@ -1,3 +1,4 @@
+import { Transactional } from '@nestjs-cls/transactional';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
@@ -36,6 +37,7 @@ export class UserService {
     return user;
   }
 
+  @Transactional()
   async updatePassword(
     id: User['id'],
     updateUserPasswordDto: UpdateUserPasswordDto,

@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
+import { TransactionHost } from '@nestjs-cls/transactional';
+import { TransactionalAdapterPrisma } from '@nestjs-cls/transactional-adapter-prisma';
 import { randomUUID } from 'node:crypto';
 import { Prisma } from '../../generated/prisma/client';
 import { DbBaseRepository } from '../common/base-db.repository';
-import { PrismaService } from '../prisma/prisma.service';
 import { ArticleFilter, ArticleRepository } from './article.repository';
 import { Article } from './entities/article.entity';
 
@@ -11,8 +12,8 @@ export class ArticleDbRepository
   extends DbBaseRepository<Article>
   implements ArticleRepository
 {
-  constructor(prisma: PrismaService) {
-    super(prisma, Prisma.ModelName.Article, Article);
+  constructor(txHost: TransactionHost<TransactionalAdapterPrisma>) {
+    super(txHost, Prisma.ModelName.Article, Article);
   }
 
   private tagsToConnectOrCreate(tags: string[]) {

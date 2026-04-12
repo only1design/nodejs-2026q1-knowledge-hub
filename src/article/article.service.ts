@@ -1,3 +1,4 @@
+import { Transactional } from '@nestjs-cls/transactional';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import { ArticleFilter, ArticleRepository } from './article.repository';
@@ -34,6 +35,7 @@ export class ArticleService {
     return article;
   }
 
+  @Transactional()
   async update(id: Article['id'], updateArticleDto: UpdateArticleDto) {
     const article = await this.articleRepository.findById(id);
 

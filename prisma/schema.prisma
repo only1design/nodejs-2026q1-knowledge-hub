@@ -45,6 +45,8 @@ model Article {
   category Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   comments Comment[]
   tags     Tag[]
+
+  @@index([status, categoryId])
 }
 
 model Category {
@@ -71,4 +73,6 @@ model Tag {
   name String @unique
 
   articles Article[]
+
+  @@index([name])
 }
