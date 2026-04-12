@@ -1,20 +1,14 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { ArticleService } from '../article/article.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
 import { UserRole } from 'generated/prisma/enums';
 import { User } from './entities/user.entity';
 import { UserRepository } from './user.repository';
 import { randomUUID } from 'node:crypto';
-import { CommentService } from 'src/comment/comment.service';
 
 @Injectable()
 export class UserService {
-  constructor(
-    private readonly userRepository: UserRepository,
-    private readonly articleService: ArticleService,
-    private readonly commentService: CommentService,
-  ) {}
+  constructor(private readonly userRepository: UserRepository) {}
 
   async create(createUserDto: CreateUserDto) {
     const now = BigInt(Date.now());
@@ -66,13 +60,5 @@ export class UserService {
     if (!(await this.userRepository.delete(id))) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
-
-    (await this.articleService.findAll({ authorId: id })).forEach((article) => {
-      this.articleService.update(article.id, { authorId: null });
-    });
-
-    (await this.commentService.findAll({ authorId: id })).forEach((comment) => {
-      this.commentService.remove(comment.id);
-    });
   }
 }

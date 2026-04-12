@@ -1,6 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
-import { ArticleService } from '../article/article.service';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { CategoryRepository } from './category.repository';
 import { CreateCategoryDto } from './dto/create-category.dto';
@@ -8,10 +7,7 @@ import { Category } from './entities/category.entity';
 
 @Injectable()
 export class CategoryService {
-  constructor(
-    private readonly categoryRepository: CategoryRepository,
-    private readonly articleService: ArticleService,
-  ) {}
+  constructor(private readonly categoryRepository: CategoryRepository) {}
 
   async create(createCategoryDto: CreateCategoryDto) {
     return await this.categoryRepository.create({
@@ -48,11 +44,5 @@ export class CategoryService {
     if (!(await this.categoryRepository.delete(id))) {
       throw new HttpException('Category not found', HttpStatus.NOT_FOUND);
     }
-
-    (await this.articleService.findAll({ categoryId: id })).forEach(
-      (article) => {
-        this.articleService.update(article.id, { categoryId: null });
-      },
-    );
   }
 }
