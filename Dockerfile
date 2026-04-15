@@ -50,12 +50,13 @@ COPY package.json ./
 # Copy open API documentation.
 COPY doc ./doc
 
+# Copy prisma schema and config for migrate deploy
+COPY prisma ./prisma
+COPY prisma.config.ts ./
+
 RUN --mount=type=bind,source=package-lock.json,target=package-lock.json \
     --mount=type=cache,target=/root/.npm,sharing=locked \
-    npm ci --omit=dev --ignore-scripts && \
-    rm -rf node_modules/prisma node_modules/@prisma/studio-core \
-           node_modules/@prisma/dev node_modules/typescript \
-           node_modules/@electric-sql node_modules/effect
+    npm ci --omit=dev
 
 # Copy the built application and generated prisma client from the build stage.
 COPY --from=build /usr/src/app/dist ./dist
@@ -67,5 +68,5 @@ EXPOSE $PORT
 # Run the application as a non-root user.
 USER node
 
-# Run the application.
-CMD ["npm", "run", "start:prod"]
+# Apply migrations and run the application.
+CMD ["sh", "-c", "npx prisma migrate deploy && npm run start:prod"]
