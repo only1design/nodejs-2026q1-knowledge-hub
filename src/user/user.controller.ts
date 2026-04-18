@@ -11,12 +11,15 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
+import { UserRole } from '../../generated/prisma/enums';
+import { Role } from '../auth/role.decorator';
 import { PaginationQueryDto } from '../common/pagination-query.dto';
 import { paginate } from '../common/paginate';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
 
+@Role(UserRole.admin)
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
@@ -26,11 +29,13 @@ export class UserController {
     return await this.userService.create(createUserDto);
   }
 
+  @Role(UserRole.viewer)
   @Get()
   async findAll(@Query() query: PaginationQueryDto) {
     return paginate(await this.userService.findAll(), query);
   }
 
+  @Role(UserRole.viewer)
   @Get(':id')
   async findOne(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
     return await this.userService.findOne(id);

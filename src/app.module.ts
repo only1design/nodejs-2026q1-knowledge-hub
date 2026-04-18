@@ -9,6 +9,7 @@ import { CommentModule } from './comment/comment.module';
 import { LoggingMiddleware } from './common/logging.middleware';
 import { PrismaModule } from './prisma/prisma.module';
 import { PrismaService } from './prisma/prisma.service';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { PrismaService } from './prisma/prisma.service';
     CategoryModule,
     CommentModule,
     PrismaModule,
+    AuthModule,
   ],
   controllers: [],
   providers: [],

@@ -24,6 +24,16 @@ export class InMemoryBaseRepository<
     return entity ? this.toEntity(entity) : undefined;
   }
 
+  async findBy(filter: Partial<T>): Promise<T | undefined> {
+    for (const entity of this.storage.values()) {
+      const match = Object.entries(filter).every(
+        ([key, value]) => entity[key] === value,
+      );
+      if (match) return this.toEntity(entity);
+    }
+    return undefined;
+  }
+
   async create(entity: T) {
     const newEntity = this.toEntity(entity);
     this.storage.set(entity.id, newEntity);

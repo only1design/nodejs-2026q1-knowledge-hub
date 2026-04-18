@@ -46,4 +46,8 @@ export class DbBaseRepository<T extends { id: string }>
   async update(id: T['id'], data: Partial<T>): Promise<T | undefined> {
     return this.toEntity(await this.model.update({ where: { id }, data }));
   }
+
+  findBy = (data: Partial<T>) => {
+    return this.model.findFirst({ where: data });
+  };
 }

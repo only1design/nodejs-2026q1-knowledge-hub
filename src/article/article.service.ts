@@ -1,6 +1,9 @@
 import { Transactional } from '@nestjs-cls/transactional';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
+import { UserRole } from '../../generated/prisma/enums';
+import { JwtPayloadDto } from '../auth/dto/jwt-payload.dto';
+import { User } from '../user/entities/user.entity';
 import { ArticleFilter, ArticleRepository } from './article.repository';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
@@ -36,11 +39,25 @@ export class ArticleService {
   }
 
   @Transactional()
-  async update(id: Article['id'], updateArticleDto: UpdateArticleDto) {
+  async update(
+    id: Article['id'],
+    updateArticleDto: UpdateArticleDto,
+    currentUser: JwtPayloadDto,
+  ) {
     const article = await this.articleRepository.findById(id);
 
     if (!article) {
       throw new HttpException('Article not found', HttpStatus.NOT_FOUND);
+    }
+
+    if (
+      article.authorId !== currentUser.userId &&
+      currentUser.role !== UserRole.admin
+    ) {
+      throw new HttpException(
+        'You can only edit your own articles',
+        HttpStatus.FORBIDDEN,
+      );
     }
 
     article.updatedAt = BigInt(Date.now());
