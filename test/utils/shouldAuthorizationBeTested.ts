@@ -1,1 +1,1 @@
-export default true;
+export default process.env.TEST_MODE === 'auth';

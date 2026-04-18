@@ -39,6 +39,13 @@ export class AuthService {
   }
 
   async refreshToken(refreshDto: RefreshDto) {
+    if (!refreshDto.refreshToken) {
+      throw new HttpException(
+        'Refresh token not found',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+
     try {
       const payload = await this.jwtService.verifyAsync(
         refreshDto.refreshToken,
