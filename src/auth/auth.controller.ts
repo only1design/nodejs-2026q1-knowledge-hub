@@ -38,4 +38,10 @@ export class AuthController {
   refresh(@Body() refreshDto: RefreshDto) {
     return this.authService.refreshToken(refreshDto);
   }
+
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Post('logout')
+  logout(@Body() refreshDto: RefreshDto) {
+    this.authService.logout(refreshDto.refreshToken);
+  }
 }

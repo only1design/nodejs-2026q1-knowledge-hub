@@ -9,6 +9,8 @@ import { SignupDto } from './dto/signup.dto';
 
 @Injectable()
 export class AuthService {
+  private tokenBlacklist = new Set<string>();
+
   constructor(
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
@@ -38,12 +40,20 @@ export class AuthService {
     });
   }
 
+  logout(refreshToken: string) {
+    this.tokenBlacklist.add(refreshToken);
+  }
+
   async refreshToken(refreshDto: RefreshDto) {
     if (!refreshDto.refreshToken) {
       throw new HttpException(
         'Refresh token not found',
         HttpStatus.UNAUTHORIZED,
       );
+    }
+
+    if (this.tokenBlacklist.has(refreshDto.refreshToken)) {
+      throw new HttpException('Token has been revoked', HttpStatus.FORBIDDEN);
     }
 
     try {
