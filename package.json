@@ -52,6 +52,7 @@
     "uuid": "^9.0.1"
   },
   "devDependencies": {
+    "@golevelup/ts-vitest": "^4.0.0",
     "@nestjs/cli": "^10.4.9",
     "@nestjs/schematics": "^10.0.3",
     "@nestjs/testing": "^10.2.8",
