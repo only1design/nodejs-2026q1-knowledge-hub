@@ -8,7 +8,7 @@ import { User } from './entities/user.entity';
 import { UserRepository } from './user.repository';
 import { randomUUID } from 'node:crypto';
 
-const CRYPT_SALT = parseInt(process.env.CRYPT_SALT || '10');
+export const CRYPT_SALT = parseInt(process.env.CRYPT_SALT || '10');
 
 @Injectable()
 export class UserService {
