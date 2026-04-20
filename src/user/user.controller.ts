@@ -11,42 +11,47 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
+import { UserRole } from '../../generated/prisma/enums';
+import { Role } from '../auth/role.decorator';
 import { PaginationQueryDto } from '../common/pagination-query.dto';
 import { paginate } from '../common/paginate';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
 
+@Role(UserRole.admin)
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.userService.create(createUserDto);
+  async create(@Body() createUserDto: CreateUserDto) {
+    return await this.userService.create(createUserDto);
   }
 
+  @Role(UserRole.viewer)
   @Get()
-  findAll(@Query() query: PaginationQueryDto) {
-    return paginate(this.userService.findAll(), query);
+  async findAll(@Query() query: PaginationQueryDto) {
+    return paginate(await this.userService.findAll(), query);
   }
 
+  @Role(UserRole.viewer)
   @Get(':id')
-  findOne(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
-    return this.userService.findOne(id);
+  async findOne(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
+    return await this.userService.findOne(id);
   }
 
   @Put(':id')
-  update(
+  async update(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
     @Body() updateUserPasswordDto: UpdateUserPasswordDto,
   ) {
-    return this.userService.updatePassword(id, updateUserPasswordDto);
+    return await this.userService.updatePassword(id, updateUserPasswordDto);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  remove(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
-    this.userService.remove(id);
+  async remove(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
+    await this.userService.remove(id);
   }
 }

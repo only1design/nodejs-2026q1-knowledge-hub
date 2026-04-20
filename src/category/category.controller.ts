@@ -11,42 +11,47 @@ import {
   HttpStatus,
   Query,
 } from '@nestjs/common';
+import { UserRole } from '../../generated/prisma/enums';
+import { Role } from '../auth/role.decorator';
 import { PaginationQueryDto } from '../common/pagination-query.dto';
 import { paginate } from '../common/paginate';
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 
+@Role(UserRole.admin)
 @Controller('category')
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
   @Post()
-  create(@Body() createCategoryDto: CreateCategoryDto) {
-    return this.categoryService.create(createCategoryDto);
+  async create(@Body() createCategoryDto: CreateCategoryDto) {
+    return await this.categoryService.create(createCategoryDto);
   }
 
+  @Role(UserRole.viewer)
   @Get()
-  findAll(@Query() query: PaginationQueryDto) {
-    return paginate(this.categoryService.findAll(), query);
+  async findAll(@Query() query: PaginationQueryDto) {
+    return paginate(await this.categoryService.findAll(), query);
   }
 
+  @Role(UserRole.viewer)
   @Get(':id')
-  findOne(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
-    return this.categoryService.findOne(id);
+  async findOne(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
+    return await this.categoryService.findOne(id);
   }
 
   @Put(':id')
-  update(
+  async update(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
     @Body() updateCategoryDto: UpdateCategoryDto,
   ) {
-    return this.categoryService.update(id, updateCategoryDto);
+    return await this.categoryService.update(id, updateCategoryDto);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  remove(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
-    this.categoryService.remove(id);
+  async remove(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
+    await this.categoryService.remove(id);
   }
 }

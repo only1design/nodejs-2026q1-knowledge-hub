@@ -1,5 +1,9 @@
 import 'dotenv/config';
 
+(BigInt.prototype as any).toJSON = function () {
+  return Number(this);
+};
+
 import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
 import { load } from 'js-yaml';
 import { NestFactory, Reflector } from '@nestjs/core';

@@ -10,5 +10,5 @@ export class Comment {
 
   authorId: User['id'] | null;
 
-  createdAt: number;
+  createdAt: bigint;
 }

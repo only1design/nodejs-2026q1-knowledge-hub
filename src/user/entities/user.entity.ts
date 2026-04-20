@@ -1,10 +1,5 @@
 import { Exclude } from 'class-transformer';
-
-export enum UserRole {
-  ADMIN = 'admin',
-  EDITOR = 'editor',
-  VIEWER = 'viewer',
-}
+import { UserRole } from 'generated/prisma/enums';
 
 export class User {
   id: string;
@@ -16,7 +11,7 @@ export class User {
 
   role: UserRole;
 
-  createdAt: number;
+  createdAt: bigint;
 
-  updatedAt: number;
+  updatedAt: bigint;
 }

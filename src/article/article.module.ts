@@ -1,6 +1,6 @@
 import { forwardRef, Module } from '@nestjs/common';
 import { CommentModule } from '../comment/comment.module';
-import { InMemoryArticleRepository } from './article-memory.repository';
+import { ArticleDbRepository } from './article-db.repository';
 import { ArticleRepository } from './article.repository';
 import { ArticleService } from './article.service';
 import { ArticleController } from './article.controller';
@@ -11,7 +11,7 @@ import { ArticleController } from './article.controller';
     ArticleService,
     {
       provide: ArticleRepository,
-      useClass: InMemoryArticleRepository,
+      useClass: ArticleDbRepository,
     },
   ],
   exports: [ArticleService],
