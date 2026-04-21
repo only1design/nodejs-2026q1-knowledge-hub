@@ -1,6 +1,5 @@
 import { createMock } from '@golevelup/ts-vitest';
 import { HttpException, HttpStatus } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { Test } from '@nestjs/testing';
 import { beforeEach, describe, vi, it, expect } from 'vitest';
 import { UserService } from '../user/user.service';
@@ -9,7 +8,6 @@ import { AuthService } from './auth.service';
 describe('AuthService', () => {
   let authService: AuthService;
   let userService: UserService;
-  let jwtService: JwtService;
 
   const signupDto = { password: 'password', login: 'login' };
 
@@ -31,7 +29,6 @@ describe('AuthService', () => {
 
     authService = moduleRef.get(AuthService);
     userService = moduleRef.get(UserService);
-    jwtService = moduleRef.get(JwtService);
   });
 
   describe('signup', () => {
