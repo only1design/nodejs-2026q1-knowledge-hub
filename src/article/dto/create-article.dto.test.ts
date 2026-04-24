@@ -41,10 +41,16 @@ describe('CreateArticleDto', () => {
     expect(errors.some((e) => e.property === 'status')).toBe(true);
   });
 
-  it('should fail when authorId is not a valid UUID', async () => {
-    const errors = await validate(makeDto({ authorId: 'not-a-uuid' }));
-    expect(errors.some((e) => e.property === 'authorId')).toBe(true);
-  });
+  it.each([
+    { field: 'authorId', override: { authorId: 'not-a-uuid' } },
+    { field: 'categoryId', override: { categoryId: 'malformed-123' } },
+  ])(
+    'should fail when $field is not a valid UUID',
+    async ({ field, override }) => {
+      const errors = await validate(makeDto(override));
+      expect(errors.some((e) => e.property === field)).toBe(true);
+    },
+  );
 
   it('should fail when tags is empty array items', async () => {
     const errors = await validate(makeDto({ tags: [''] }));

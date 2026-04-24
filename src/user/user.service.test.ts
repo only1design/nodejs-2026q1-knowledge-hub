@@ -21,6 +21,8 @@ describe('UserService', () => {
             create: vi.fn(),
             findById: vi.fn(),
             findBy: vi.fn(),
+            update: vi.fn(),
+            delete: vi.fn(),
           },
         },
       ],
@@ -97,6 +99,78 @@ describe('UserService', () => {
 
       await expect(userService.findByLogin('login')).resolves.toBe('User');
       expect(userRepository.findBy).toHaveBeenCalledWith({ login: 'login' });
+    });
+  });
+
+  describe('remove', () => {
+    test('Should throw 404 when user does not exist', async () => {
+      vi.spyOn(userRepository, 'delete').mockResolvedValue(false as never);
+
+      await expect(userService.remove('non-existent-id')).rejects.toThrow(
+        new HttpException('User not found', HttpStatus.NOT_FOUND),
+      );
+    });
+
+    test('Should resolve without error when user exists', async () => {
+      vi.spyOn(userRepository, 'delete').mockResolvedValue(true as never);
+
+      await expect(userService.remove('user-id')).resolves.toBeUndefined();
+    });
+  });
+
+  describe('updatePassword', () => {
+    const mockUser = {
+      id: 'user-id',
+      login: 'login',
+      password: 'hashed_password',
+      role: UserRole.viewer,
+    };
+
+    test('Should throw 404 when user does not exist', async () => {
+      vi.spyOn(userRepository, 'findById').mockResolvedValue(undefined);
+
+      await expect(
+        userService.updatePassword('non-existent-id', {
+          oldPassword: 'old',
+          newPassword: 'new',
+        }),
+      ).rejects.toThrow(
+        new HttpException('User not found', HttpStatus.NOT_FOUND),
+      );
+    });
+
+    test('Should throw 403 when old password does not match', async () => {
+      vi.spyOn(userRepository, 'findById').mockResolvedValue(mockUser as never);
+      vi.spyOn(bcrypt, 'compare').mockResolvedValue(false as never);
+
+      await expect(
+        userService.updatePassword('user-id', {
+          oldPassword: 'wrong-password',
+          newPassword: 'new-password',
+        }),
+      ).rejects.toThrow(
+        new HttpException('Wrong password', HttpStatus.FORBIDDEN),
+      );
+    });
+
+    test('Should hash new password and update on success', async () => {
+      vi.spyOn(userRepository, 'findById').mockResolvedValue(mockUser as never);
+      vi.spyOn(bcrypt, 'compare').mockResolvedValue(true as never);
+      vi.spyOn(bcrypt, 'hash').mockResolvedValue(
+        'new_hashed_password' as never,
+      );
+      vi.spyOn(userRepository, 'update');
+
+      await userService.updatePassword('user-id', {
+        oldPassword: 'correct-password',
+        newPassword: 'new-password',
+      });
+
+      expect(bcrypt.hash).toHaveBeenCalledWith('new-password', CRYPT_SALT);
+      expect(userRepository.update).toHaveBeenCalledWith(
+        'user-id',
+        expect.objectContaining({ password: 'new_hashed_password' }),
+      );
     });
   });
 });

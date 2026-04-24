@@ -33,6 +33,7 @@ describe('ArticleService', () => {
             findById: vi.fn(),
             update: vi.fn(),
             findAll: vi.fn(),
+            delete: vi.fn(),
           },
         },
       ],
@@ -42,6 +43,42 @@ describe('ArticleService', () => {
 
     articleService = moduleRef.get(ArticleService);
     articleRepository = moduleRef.get(ArticleRepository);
+  });
+
+  describe('findOne', () => {
+    it('should throw 404 when article does not exist', async () => {
+      vi.spyOn(articleRepository, 'findById').mockResolvedValue(undefined);
+
+      await expect(articleService.findOne('non-existent-id')).rejects.toThrow(
+        new HttpException('Article not found', HttpStatus.NOT_FOUND),
+      );
+    });
+
+    it('should return article when it exists', async () => {
+      vi.spyOn(articleRepository, 'findById').mockResolvedValue(mockArticle);
+
+      await expect(articleService.findOne(mockArticle.id)).resolves.toEqual(
+        mockArticle,
+      );
+    });
+  });
+
+  describe('remove', () => {
+    it('should throw 404 when article does not exist', async () => {
+      vi.spyOn(articleRepository, 'delete').mockResolvedValue(false as never);
+
+      await expect(articleService.remove('non-existent-id')).rejects.toThrow(
+        new HttpException('Article not found', HttpStatus.NOT_FOUND),
+      );
+    });
+
+    it('should resolve without error when article exists', async () => {
+      vi.spyOn(articleRepository, 'delete').mockResolvedValue(true as never);
+
+      await expect(
+        articleService.remove(mockArticle.id),
+      ).resolves.toBeUndefined();
+    });
   });
 
   describe('create', () => {
