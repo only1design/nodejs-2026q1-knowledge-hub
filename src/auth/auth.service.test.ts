@@ -3,7 +3,6 @@ import { HttpException, HttpStatus } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Test } from '@nestjs/testing';
 import * as bcrypt from 'bcrypt';
-import { beforeEach, describe, vi, it, expect } from 'vitest';
 import { UserService } from '../user/user.service';
 import { AuthService } from './auth.service';
 

@@ -1,5 +1,4 @@
 import { instanceToPlain } from 'class-transformer';
-import { describe, it, expect } from 'vitest';
 import { UserRole } from '../../../generated/prisma/enums';
 import { User } from './user.entity';
 

@@ -1,5 +1,4 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
-import { describe, it, expect, beforeEach } from 'vitest';
 import { PositiveIntPipe } from './positive-int.pipe';
 
 describe('PositiveIntPipe', () => {

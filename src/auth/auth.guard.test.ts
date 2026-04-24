@@ -2,7 +2,6 @@ import { HttpException, HttpStatus, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { Test } from '@nestjs/testing';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { createMock } from '@golevelup/ts-vitest';
 import { AuthGuard } from './auth.guard';
 

@@ -5,6 +5,7 @@ export default defineConfig({
     tsconfigPaths: true,
   },
   test: {
+    globals: true,
     setupFiles: ['src/test-setup.ts'],
     include: ['src/**/*.test.ts'],
     exclude: ['**/*.spec.ts'],

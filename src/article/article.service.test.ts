@@ -1,7 +1,6 @@
 import { createMock } from '@golevelup/ts-vitest';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { UserRole } from '../../generated/prisma/enums';
 import { ArticleRepository } from './article.repository';
 import { ArticleService } from './article.service';

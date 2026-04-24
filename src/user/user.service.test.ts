@@ -1,6 +1,5 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import { describe, expect, test, vi, beforeEach } from 'vitest';
 import { UserRole } from '../../generated/prisma/enums';
 import { UserRepository } from './user.repository';
 import { CRYPT_SALT, UserService } from './user.service';
