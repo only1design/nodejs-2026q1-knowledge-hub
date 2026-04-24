@@ -1,4 +1,3 @@
-import 'reflect-metadata';
 import { paginate } from './paginate';
 import { SortBy } from './pagination-query.dto';
 
