@@ -19,6 +19,7 @@ describe('UserService', () => {
           provide: UserRepository,
           useValue: {
             create: vi.fn(),
+            findAll: vi.fn(),
             findById: vi.fn(),
             findBy: vi.fn(),
             update: vi.fn(),
@@ -82,6 +83,17 @@ describe('UserService', () => {
     });
   });
 
+  describe('findAll', () => {
+    test('Should return all users', async () => {
+      const mockUser = { id: 'user-id', login: 'login' };
+      vi.spyOn(userRepository, 'findAll').mockResolvedValue([
+        mockUser,
+      ] as never);
+
+      await expect(userService.findAll()).resolves.toEqual([mockUser]);
+    });
+  });
+
   describe('findOne', () => {
     test('Should throw error if user not found', async () => {
       vi.spyOn(userRepository, 'findById').mockResolvedValue(undefined);
@@ -90,6 +102,13 @@ describe('UserService', () => {
         new HttpException('User not found', HttpStatus.NOT_FOUND),
       );
       expect(userRepository.findById).toHaveBeenCalledWith('id');
+    });
+
+    test('Should return user when found', async () => {
+      const mockUser = { id: 'user-id', login: 'login' };
+      vi.spyOn(userRepository, 'findById').mockResolvedValue(mockUser as never);
+
+      await expect(userService.findOne('user-id')).resolves.toEqual(mockUser);
     });
   });
 

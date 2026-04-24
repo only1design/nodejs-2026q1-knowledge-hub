@@ -182,6 +182,22 @@ describe('ArticleService', () => {
     });
   });
 
+  describe('exist', () => {
+    it('should return true when article exists', async () => {
+      vi.spyOn(articleRepository, 'findById').mockResolvedValue(mockArticle);
+
+      await expect(articleService.exist(mockArticle.id)).resolves.toBe(true);
+    });
+
+    it('should return false when article does not exist', async () => {
+      vi.spyOn(articleRepository, 'findById').mockResolvedValue(undefined);
+
+      await expect(articleService.exist('non-existent-id')).resolves.toBe(
+        false,
+      );
+    });
+  });
+
   describe('filtering', () => {
     it.each([
       { filter: { status: 'published' }, name: 'status' },

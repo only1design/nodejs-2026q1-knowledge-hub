@@ -140,6 +140,20 @@ describe('paginate', () => {
     });
   });
 
+  describe('equal values', () => {
+    it('should preserve relative order for items with equal sort values', () => {
+      const equalItems = [
+        { id: '1', name: 'Alice', age: 25 },
+        { id: '2', name: 'Alice', age: 30 },
+      ];
+      const result = paginate(equalItems, {
+        sortBy: 'name',
+      }) as typeof equalItems;
+
+      expect(result.map((i) => i.id)).toEqual(['1', '2']);
+    });
+  });
+
   describe('immutability', () => {
     it('should not mutate the original array', () => {
       const original = [...items];
