@@ -4,16 +4,26 @@ import 'dotenv/config';
   return Number(this);
 };
 
-import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
+import {
+  ClassSerializerInterceptor,
+  ConsoleLogger,
+  ValidationPipe,
+} from '@nestjs/common';
 import { load } from 'js-yaml';
 import { NestFactory, Reflector } from '@nestjs/core';
 import { SwaggerModule } from '@nestjs/swagger';
+import { appConfig } from './app.constants';
 import { AppModule } from './app.module';
 import { readFileSync } from 'node:fs';
 import * as path from 'node:path';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    logger: new ConsoleLogger({
+      logLevels: [appConfig.logLevel],
+      json: appConfig.isProd,
+    }),
+  });
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -29,4 +39,5 @@ async function bootstrap() {
 
   await app.listen(process.env.PORT || 4000);
 }
+
 bootstrap();

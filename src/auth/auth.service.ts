@@ -1,6 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import type { StringValue } from 'ms';
 import { UserService } from 'src/user/user.service';
 import { jwtConstants } from './auth.constants';
 import { LoginDto } from './dto/login.dto';
@@ -83,7 +84,7 @@ export class AuthService {
       this.jwtService.signAsync(payload),
       this.jwtService.signAsync(payload, {
         secret: jwtConstants.refreshSecret,
-        expiresIn: jwtConstants.refreshTll,
+        expiresIn: jwtConstants.refreshTll as StringValue,
       }),
     ]);
 
