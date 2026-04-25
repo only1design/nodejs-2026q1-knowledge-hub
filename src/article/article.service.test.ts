@@ -1,5 +1,5 @@
 import { createMock } from '@golevelup/ts-vitest';
-import { HttpException, HttpStatus } from '@nestjs/common';
+import { ForbiddenError, NotFoundError } from '../errors/app.errors';
 import { Test } from '@nestjs/testing';
 import { UserRole } from '../../generated/prisma/enums';
 import { ArticleRepository } from './article.repository';
@@ -50,7 +50,7 @@ describe('ArticleService', () => {
       vi.spyOn(articleRepository, 'findById').mockResolvedValue(undefined);
 
       await expect(articleService.findOne('non-existent-id')).rejects.toThrow(
-        new HttpException('Article not found', HttpStatus.NOT_FOUND),
+        new NotFoundError('Article not found'),
       );
     });
 
@@ -68,7 +68,7 @@ describe('ArticleService', () => {
       vi.spyOn(articleRepository, 'delete').mockResolvedValue(false as never);
 
       await expect(articleService.remove('non-existent-id')).rejects.toThrow(
-        new HttpException('Article not found', HttpStatus.NOT_FOUND),
+        new NotFoundError('Article not found'),
       );
     });
 
@@ -134,9 +134,7 @@ describe('ArticleService', () => {
           { status: ArticleStatus.PUBLISHED },
           currentUser,
         ),
-      ).rejects.toThrow(
-        new HttpException('Article not found', HttpStatus.NOT_FOUND),
-      );
+      ).rejects.toThrow(new NotFoundError('Article not found'));
     });
 
     it('should throw if editor updates another users article', async () => {
@@ -152,10 +150,7 @@ describe('ArticleService', () => {
           currentUser,
         ),
       ).rejects.toThrow(
-        new HttpException(
-          'You can only edit your own articles',
-          HttpStatus.FORBIDDEN,
-        ),
+        new ForbiddenError('You can only edit your own articles'),
       );
     });
 

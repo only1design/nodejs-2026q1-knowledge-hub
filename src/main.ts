@@ -40,7 +40,7 @@ async function bootstrap() {
   await app.listen(process.env.PORT || 4000);
 
   process.on('uncaughtException', async (error) => {
-    logger.error('Uncaught exception', error.stack);
+    logger.fatal('Uncaught exception', error.stack);
     await app.close();
     process.exit(1);
   });

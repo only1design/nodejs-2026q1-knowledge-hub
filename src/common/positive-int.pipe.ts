@@ -1,9 +1,5 @@
-import {
-  HttpException,
-  HttpStatus,
-  Injectable,
-  PipeTransform,
-} from '@nestjs/common';
+import { Injectable, PipeTransform } from '@nestjs/common';
+import { ValidationError } from '../errors/app.errors';
 
 @Injectable()
 export class PositiveIntPipe implements PipeTransform<string, number> {
@@ -11,16 +7,10 @@ export class PositiveIntPipe implements PipeTransform<string, number> {
     const parsed = parseInt(value, 10);
 
     if (isNaN(parsed)) {
-      throw new HttpException(
-        `'${value}' is not a valid integer`,
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new ValidationError(`'${value}' is not a valid integer`);
     }
     if (parsed <= 0) {
-      throw new HttpException(
-        'Value must be a positive integer',
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new ValidationError('Value must be a positive integer');
     }
 
     return parsed;

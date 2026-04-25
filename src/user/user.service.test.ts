@@ -1,6 +1,6 @@
-import { HttpException, HttpStatus } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { UserRole } from '../../generated/prisma/enums';
+import { ForbiddenError, NotFoundError } from '../errors/app.errors';
 import { UserRepository } from './user.repository';
 import { CRYPT_SALT, UserService } from './user.service';
 import * as bcrypt from 'bcrypt';
@@ -99,7 +99,7 @@ describe('UserService', () => {
       vi.spyOn(userRepository, 'findById').mockResolvedValue(undefined);
 
       await expect(userService.findOne('id')).rejects.toThrow(
-        new HttpException('User not found', HttpStatus.NOT_FOUND),
+        new NotFoundError('User not found'),
       );
       expect(userRepository.findById).toHaveBeenCalledWith('id');
     });
@@ -126,7 +126,7 @@ describe('UserService', () => {
       vi.spyOn(userRepository, 'delete').mockResolvedValue(false as never);
 
       await expect(userService.remove('non-existent-id')).rejects.toThrow(
-        new HttpException('User not found', HttpStatus.NOT_FOUND),
+        new NotFoundError('User not found'),
       );
     });
 
@@ -153,9 +153,7 @@ describe('UserService', () => {
           oldPassword: 'old',
           newPassword: 'new',
         }),
-      ).rejects.toThrow(
-        new HttpException('User not found', HttpStatus.NOT_FOUND),
-      );
+      ).rejects.toThrow(new NotFoundError('User not found'));
     });
 
     test('Should throw 403 when old password does not match', async () => {
@@ -167,9 +165,7 @@ describe('UserService', () => {
           oldPassword: 'wrong-password',
           newPassword: 'new-password',
         }),
-      ).rejects.toThrow(
-        new HttpException('Wrong password', HttpStatus.FORBIDDEN),
-      );
+      ).rejects.toThrow(new ForbiddenError('Wrong password'));
     });
 
     test('Should hash new password and update on success', async () => {

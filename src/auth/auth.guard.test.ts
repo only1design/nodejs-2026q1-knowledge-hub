@@ -1,4 +1,5 @@
-import { HttpException, HttpStatus, ExecutionContext } from '@nestjs/common';
+import { ExecutionContext } from '@nestjs/common';
+import { UnauthorizedError } from '../errors/app.errors';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { Test } from '@nestjs/testing';
@@ -51,7 +52,7 @@ describe('AuthGuard', () => {
     vi.spyOn(reflector, 'getAllAndOverride').mockReturnValue(false);
 
     await expect(guard.canActivate(mockContext())).rejects.toThrow(
-      new HttpException('The token is missing', HttpStatus.UNAUTHORIZED),
+      new UnauthorizedError('The token is missing'),
     );
   });
 
@@ -60,9 +61,7 @@ describe('AuthGuard', () => {
 
     await expect(
       guard.canActivate(mockContext('Basic sometoken')),
-    ).rejects.toThrow(
-      new HttpException('The token is missing', HttpStatus.UNAUTHORIZED),
-    );
+    ).rejects.toThrow(new UnauthorizedError('The token is missing'));
   });
 
   it('should throw 401 when token is invalid', async () => {
@@ -71,12 +70,7 @@ describe('AuthGuard', () => {
 
     await expect(
       guard.canActivate(mockContext('Bearer bad.token')),
-    ).rejects.toThrow(
-      new HttpException(
-        'The token is invalid or expired',
-        HttpStatus.UNAUTHORIZED,
-      ),
-    );
+    ).rejects.toThrow(new UnauthorizedError('The token is invalid or expired'));
   });
 
   it('should attach user to request and return true for valid token', async () => {

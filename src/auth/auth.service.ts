@@ -1,4 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import {
+  ForbiddenError,
+  UnauthorizedError,
+  ValidationError,
+} from '../errors/app.errors';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import type { StringValue } from 'ms';
@@ -21,7 +26,7 @@ export class AuthService {
     const user = await this.userService.findByLogin(signupDto.login);
 
     if (user) {
-      throw new HttpException('Login is already taken', HttpStatus.BAD_REQUEST);
+      throw new ValidationError('Login is already taken');
     }
 
     return await this.userService.create(signupDto);
@@ -31,7 +36,7 @@ export class AuthService {
     const user = await this.userService.findByLogin(loginDto.login);
 
     if (!user || !(await bcrypt.compare(loginDto.password, user.password))) {
-      throw new HttpException('Authentication failed', HttpStatus.FORBIDDEN);
+      throw new ForbiddenError('Authentication failed');
     }
 
     return this.generateTokens({
@@ -47,14 +52,11 @@ export class AuthService {
 
   async refreshToken(refreshDto: RefreshDto) {
     if (!refreshDto.refreshToken) {
-      throw new HttpException(
-        'Refresh token not found',
-        HttpStatus.UNAUTHORIZED,
-      );
+      throw new UnauthorizedError('Refresh token not found');
     }
 
     if (this.tokenBlacklist.has(refreshDto.refreshToken)) {
-      throw new HttpException('Token has been revoked', HttpStatus.FORBIDDEN);
+      throw new ForbiddenError('Token has been revoked');
     }
 
     try {
@@ -71,7 +73,7 @@ export class AuthService {
         role: payload.role,
       });
     } catch {
-      throw new HttpException('Authentication failed', HttpStatus.FORBIDDEN);
+      throw new ForbiddenError('Authentication failed');
     }
   }
 

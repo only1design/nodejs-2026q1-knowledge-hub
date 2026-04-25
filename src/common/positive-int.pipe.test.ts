@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus } from '@nestjs/common';
+import { ValidationError } from '../errors/app.errors';
 import { PositiveIntPipe } from './positive-int.pipe';
 
 describe('PositiveIntPipe', () => {
@@ -22,17 +22,14 @@ describe('PositiveIntPipe', () => {
     { input: '-100', label: 'large negative number' },
   ])('should throw 400 for $label', ({ input }) => {
     expect(() => pipe.transform(input)).toThrow(
-      new HttpException(
-        'Value must be a positive integer',
-        HttpStatus.BAD_REQUEST,
-      ),
+      new ValidationError('Value must be a positive integer'),
     );
   });
 
   it.each([{ input: 'abc' }, { input: '' }, { input: 'one' }])(
     'should throw 400 for non-numeric "$input"',
     ({ input }) => {
-      expect(() => pipe.transform(input)).toThrow(HttpException);
+      expect(() => pipe.transform(input)).toThrow(ValidationError);
     },
   );
 });

@@ -1,5 +1,9 @@
 import { createMock } from '@golevelup/ts-vitest';
-import { HttpException, HttpStatus } from '@nestjs/common';
+import {
+  ForbiddenError,
+  UnauthorizedError,
+  ValidationError,
+} from '../errors/app.errors';
 import { JwtService } from '@nestjs/jwt';
 import { Test } from '@nestjs/testing';
 import * as bcrypt from 'bcrypt';
@@ -64,7 +68,7 @@ describe('AuthService', () => {
       vi.spyOn(userService, 'findByLogin').mockResolvedValue('User' as never);
 
       await expect(authService.signup(signupDto)).rejects.toThrow(
-        new HttpException('Login is already taken', HttpStatus.BAD_REQUEST),
+        new ValidationError('Login is already taken'),
       );
     });
   });
@@ -95,7 +99,7 @@ describe('AuthService', () => {
       vi.spyOn(userService, 'findByLogin').mockResolvedValue(undefined);
 
       await expect(authService.login(signupDto)).rejects.toThrow(
-        new HttpException('Authentication failed', HttpStatus.FORBIDDEN),
+        new ForbiddenError('Authentication failed'),
       );
     });
 
@@ -104,7 +108,7 @@ describe('AuthService', () => {
       vi.spyOn(bcrypt, 'compare').mockResolvedValue(false as never);
 
       await expect(authService.login(signupDto)).rejects.toThrow(
-        new HttpException('Authentication failed', HttpStatus.FORBIDDEN),
+        new ForbiddenError('Authentication failed'),
       );
     });
   });
@@ -135,9 +139,7 @@ describe('AuthService', () => {
     it('should throw on missing refresh token', async () => {
       await expect(
         authService.refreshToken({ refreshToken: undefined }),
-      ).rejects.toThrow(
-        new HttpException('Refresh token not found', HttpStatus.UNAUTHORIZED),
-      );
+      ).rejects.toThrow(new UnauthorizedError('Refresh token not found'));
     });
 
     it('should throw on invalid/expired refresh token', async () => {
@@ -145,9 +147,7 @@ describe('AuthService', () => {
 
       await expect(
         authService.refreshToken({ refreshToken: 'invalid-token' }),
-      ).rejects.toThrow(
-        new HttpException('Authentication failed', HttpStatus.FORBIDDEN),
-      );
+      ).rejects.toThrow(new ForbiddenError('Authentication failed'));
     });
 
     it('should throw on blacklisted refresh token', async () => {
@@ -155,9 +155,7 @@ describe('AuthService', () => {
 
       await expect(
         authService.refreshToken({ refreshToken: 'revoked-token' }),
-      ).rejects.toThrow(
-        new HttpException('Token has been revoked', HttpStatus.FORBIDDEN),
-      );
+      ).rejects.toThrow(new ForbiddenError('Token has been revoked'));
     });
   });
 });
