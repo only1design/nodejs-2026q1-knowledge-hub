@@ -142,3 +142,35 @@ Reset database (drops all data, re-applies migrations and seed):
 ```
 npx prisma migrate reset
 ```
+
+## Logging
+
+The app logs to both console and file (`logs/app.log`). Log files rotate automatically when exceeding `LOG_MAX_FILE_SIZE` (default 1024 KB). Rotated files are named `app-{timestamp}.log`.
+
+Configure via `.env`:
+
+| Variable | Default | Description |
+|---|---|---|
+| `LOG_LEVEL` | `log` | Min level: `fatal`, `error`, `warn`, `log`, `debug`, `verbose` |
+| `LOG_MAX_FILE_SIZE` | `1024` | Max log file size in KB before rotation |
+
+In production (`NODE_ENV=production`) logs are JSON-formatted. In development — human-readable.
+
+### Log file locations
+
+| Scenario | Path |
+|---|---|
+| Local (`npm start`) | `./logs/app.log` |
+| Docker Compose | `/usr/src/app/logs/app.log` inside the container |
+
+To view logs from Docker container:
+
+```
+docker compose exec app cat logs/app.log
+```
+
+To stream logs in real time:
+
+```
+docker compose logs -f app
+```
