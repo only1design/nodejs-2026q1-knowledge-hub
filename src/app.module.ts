@@ -11,6 +11,7 @@ import { LoggingMiddleware } from './common/logging.middleware';
 import { PrismaModule } from './prisma/prisma.module';
 import { PrismaService } from './prisma/prisma.service';
 import { AuthModule } from './auth/auth.module';
+import { AiModule } from './ai/ai.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { AuthModule } from './auth/auth.module';
     CommentModule,
     PrismaModule,
     AuthModule,
+    AiModule,
   ],
   controllers: [],
   providers: [],

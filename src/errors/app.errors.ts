@@ -33,3 +33,15 @@ export class ForbiddenError extends AppError {
     super(HttpStatus.FORBIDDEN, message);
   }
 }
+
+export class ServiceUnavailableError extends AppError {
+  constructor(message = 'Service temporarily unavailable') {
+    super(HttpStatus.SERVICE_UNAVAILABLE, message);
+  }
+}
+
+export class InternalServiceError extends AppError {
+  constructor(message = 'Internal server error') {
+    super(HttpStatus.INTERNAL_SERVER_ERROR, message);
+  }
+}

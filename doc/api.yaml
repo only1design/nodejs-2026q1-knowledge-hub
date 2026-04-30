@@ -752,3 +752,189 @@ paths:
           $ref: '#/components/responses/ForbiddenError'
         404:
           description: Comment was not found
+  /ai/articles/{articleId}/summarize:
+    parameters:
+      - name: articleId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    post:
+      tags:
+        - AI
+      summary: Summarize article
+      description: Generates a summary for an existing article using AI
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                maxLength:
+                  type: string
+                  enum: [short, medium, detailed]
+                  default: medium
+      responses:
+        200:
+          description: Summary generated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  articleId:
+                    type: string
+                    format: uuid
+                  summary:
+                    type: string
+                  originalLength:
+                    type: number
+                  summaryLength:
+                    type: number
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          description: Article not found
+        429:
+          description: Rate limit exceeded
+        503:
+          description: AI service temporarily unavailable
+  /ai/articles/{articleId}/translate:
+    parameters:
+      - name: articleId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    post:
+      tags:
+        - AI
+      summary: Translate article
+      description: Translates article content to the specified language using AI
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                targetLanguage:
+                  type: string
+                sourceLanguage:
+                  type: string
+              required:
+                - targetLanguage
+      responses:
+        200:
+          description: Translation completed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  articleId:
+                    type: string
+                    format: uuid
+                  translatedText:
+                    type: string
+                  detectedLanguage:
+                    type: string
+        400:
+          description: Bad request. targetLanguage is missing
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          description: Article not found
+        429:
+          description: Rate limit exceeded
+        503:
+          description: AI service temporarily unavailable
+  /ai/articles/{articleId}/analyze:
+    parameters:
+      - name: articleId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    post:
+      tags:
+        - AI
+      summary: Analyze article content
+      description: Analyzes article text and returns review insights using AI
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                task:
+                  type: string
+                  enum: [review, bugs, optimize, explain]
+                  default: review
+      responses:
+        200:
+          description: Analysis completed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  articleId:
+                    type: string
+                    format: uuid
+                  analysis:
+                    type: string
+                  suggestions:
+                    type: array
+                    items:
+                      type: string
+                  severity:
+                    type: string
+                    enum: [info, warning, error]
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          description: Article not found
+        429:
+          description: Rate limit exceeded
+        503:
+          description: AI service temporarily unavailable
+
+  /ai/generate:
+    post:
+      tags:
+        - AI
+      summary: Generate free-form AI response
+      description: Sends a custom prompt to the AI model and returns the generated text
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - prompt
+              properties:
+                prompt:
+                  type: string
+                  example: 'Explain quantum computing in simple terms'
+      responses:
+        200:
+          description: Generated response
+          content:
+            application/json:
+              schema:
+                type: string
+        400:
+          description: Validation error (prompt is empty or missing)
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        429:
+          description: Rate limit exceeded
+        503:
+          description: AI service temporarily unavailable

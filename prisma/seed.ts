@@ -179,8 +179,9 @@ async function main() {
       update: {},
       create: {
         id: '16f4bc32-302a-459c-9ded-40899358194a',
-        title: 'Tennis Grand Slam Results',
-        content: 'Coverage of the latest Grand Slam tournament',
+        title: 'Understanding Event Loop in Node.js',
+        content:
+          'The event loop is the core mechanism that allows Node.js to perform non-blocking I/O operations despite JavaScript being single-threaded. It works by offloading operations to the system kernel whenever possible. The loop has several phases: timers, pending callbacks, idle/prepare, poll, check, and close callbacks. A common mistake is blocking the event loop with synchronous operations like heavy computations or synchronous file reads, which freezes the entire application.',
         status: 'published',
         authorId: aliceId,
         categoryId: categories[2].id,
