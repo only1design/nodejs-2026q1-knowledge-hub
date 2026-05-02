@@ -1,5 +1,6 @@
 import { Transactional } from '@nestjs-cls/transactional';
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { NotFoundError } from '../errors/app.errors';
 import { randomUUID } from 'node:crypto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { CategoryRepository } from './category.repository';
@@ -25,7 +26,7 @@ export class CategoryService {
     const category = await this.categoryRepository.findById(id);
 
     if (!category) {
-      throw new HttpException('Category not found', HttpStatus.NOT_FOUND);
+      throw new NotFoundError('Category not found');
     }
 
     return category;
@@ -36,7 +37,7 @@ export class CategoryService {
     const category = await this.categoryRepository.findById(id);
 
     if (!category) {
-      throw new HttpException('Category not found', HttpStatus.NOT_FOUND);
+      throw new NotFoundError('Category not found');
     }
 
     return await this.categoryRepository.update(id, updateCategoryDto);
@@ -44,7 +45,7 @@ export class CategoryService {
 
   async remove(id: Category['id']) {
     if (!(await this.categoryRepository.delete(id))) {
-      throw new HttpException('Category not found', HttpStatus.NOT_FOUND);
+      throw new NotFoundError('Category not found');
     }
   }
 }

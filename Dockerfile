@@ -58,9 +58,11 @@ RUN --mount=type=bind,source=package-lock.json,target=package-lock.json \
     --mount=type=cache,target=/root/.npm,sharing=locked \
     npm ci --omit=dev
 
-# Copy the built application and generated prisma client from the build stage.
+# Copy the built application (includes compiled prisma client in dist/generated).
 COPY --from=build /usr/src/app/dist ./dist
-COPY --from=build /usr/src/app/generated ./generated
+
+# Create logs directory writable by node user.
+RUN mkdir -p logs && chown node:node logs
 
 # Expose the port that the application listens on.
 EXPOSE $PORT

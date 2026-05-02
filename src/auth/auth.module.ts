@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
+import type { StringValue } from 'ms';
 import { UserModule } from '../user/user.module';
 import { jwtConstants } from './auth.constants';
 import { AuthGuard } from './auth.guard';
@@ -14,7 +15,7 @@ import { RoleGuard } from './role.guard';
     JwtModule.register({
       global: true,
       secret: jwtConstants.secret,
-      signOptions: { expiresIn: jwtConstants.accessTll },
+      signOptions: { expiresIn: jwtConstants.accessTll as StringValue },
     }),
   ],
   controllers: [AuthController],

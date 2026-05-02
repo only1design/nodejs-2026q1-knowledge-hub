@@ -1,9 +1,20 @@
 # Knowledge Hub
 
+## Quick Start
+
+```bash
+cp .env.example .env
+docker compose up --build
+```
+
+OpenAPI documentation will be available at http://localhost:4000/doc/
+
 ## Prerequisites
 
 - Git - [Download & Install Git](https://git-scm.com/downloads).
 - Node.js - [Download & Install Node.js](https://nodejs.org/en/download/) and the npm package manager.
+- Docker
+
 
 ## Downloading
 
@@ -29,53 +40,31 @@ For more information about OpenAPI/Swagger please visit https://swagger.io/.
 
 ## Testing
 
-After application running open new terminal and enter:
+Unit tests run without a server. Integration tests require the app running via Docker Compose.
 
-To run all tests without authorization
+Run all tests (unit and integration):
 
 ```
 npm run test
 ```
 
-To run only one of all test suites
-
-```
-npm run test -- <path to suite>
-```
-
-To run all unit tests
+Unit tests only (no server needed):
 
 ```
 npm run test:unit
 ```
 
-To run only specific unit test suite
+Unit tests with coverage:
 
 ```
-npm run test:unit -- <path to suite>
+npm run test:coverage
 ```
 
-To run all test with authorization
+E2E tests by category (server must be running):
 
 ```
 npm run test:auth
-```
-
-To run only specific test suite with authorization
-
-```
-npm run test:auth -- <path to suite>
-```
-
-To run refresh token tests
-
-```
 npm run test:refresh
-```
-
-To run RBAC (role-based access control) tests
-
-```
 npm run test:rbac
 ```
 
@@ -89,12 +78,6 @@ npm run lint
 npm run format
 ```
 
-### Debugging in VSCode
-
-Press <kbd>F5</kbd> to debug.
-
-For more information, visit: https://code.visualstudio.com/docs/editor/debugging
-
 ## Docker & Database
 
 Application image size: 101.18 MB (Compressed) and 492.98 MB (Plain)-
@@ -104,20 +87,13 @@ The Docker Scout scan revealed no critical (C) vulnerabilities. See the full rep
 
 ### Setup
 
-1. Copy `.env.example` to `.env` and fill in the values:
+Copy `.env.example` to `.env`:
 
 ```
 cp .env.example .env
 ```
 
-2. `DATABASE_URL` in `.env` should use `localhost` — this is used both for local development and for running Prisma CLI commands from the host machine:
-
-```
-DATABASE_URL=postgresql://postgres:postgres@localhost:5432/knowledge_hub
-```
-
-> The app container in Docker Compose overrides `DATABASE_URL` via `docker-compose.yml` environment to use the `db` service name for internal Docker network communication.
-> From the host machine, `localhost` works because the database port is forwarded via `ports` in docker-compose.
+The default values work out of the box. `DATABASE_URL` uses `db` hostname for the app container; `DATABASE_URL_LOCAL` uses `localhost` for running Prisma CLI within tests from the host machine.
 
 ### Running with Docker Compose
 
@@ -137,7 +113,7 @@ docker compose --profile debug up --build
 
 All Prisma CLI commands run from the host machine using `localhost` in `DATABASE_URL`.
 
-Apply pending migrations (run before first start or after schema changes):
+Apply pending migrations:
 
 ```
 npx prisma migrate deploy
@@ -159,4 +135,42 @@ Open Prisma Studio (visual database browser):
 
 ```
 npx prisma studio
+```
+
+Reset database (drops all data, re-applies migrations and seed):
+
+```
+npx prisma migrate reset
+```
+
+## Logging
+
+The app logs to both console and file (`logs/app.log`). Log files rotate automatically when exceeding `LOG_MAX_FILE_SIZE` (default 1024 KB). Rotated files are named `app-{timestamp}.log`.
+
+Configure via `.env`:
+
+| Variable | Default | Description |
+|---|---|---|
+| `LOG_LEVEL` | `log` | Min level: `fatal`, `error`, `warn`, `log`, `debug`, `verbose` |
+| `LOG_MAX_FILE_SIZE` | `1024` | Max log file size in KB before rotation |
+
+In production (`NODE_ENV=production`) logs are JSON-formatted. In development — human-readable.
+
+### Log file locations
+
+| Scenario | Path |
+|---|---|
+| Local (`npm start`) | `./logs/app.log` |
+| Docker Compose | `/usr/src/app/logs/app.log` inside the container |
+
+To view logs from Docker container:
+
+```
+docker compose exec app cat logs/app.log
+```
+
+To stream logs in real time:
+
+```
+docker compose logs -f app
 ```

@@ -83,6 +83,33 @@ describe('InMemoryBaseRepository', () => {
     });
   });
 
+  describe('findBy', () => {
+    it('should return entity matching the filter', async () => {
+      await repository.create(entity);
+
+      const result = await repository.findBy({ name: 'test' });
+
+      expect(result).toEqual(entity);
+    });
+
+    it('should return undefined when no entity matches', async () => {
+      await repository.create(entity);
+
+      const result = await repository.findBy({ name: 'nonexistent' });
+
+      expect(result).toBeUndefined();
+    });
+
+    it('should match on multiple filter fields', async () => {
+      await repository.create(entity);
+      await repository.create({ id: '2', name: 'other' });
+
+      const result = await repository.findBy({ id: '1', name: 'test' });
+
+      expect(result).toEqual(entity);
+    });
+  });
+
   describe('delete', () => {
     it('should return true when entity deleted', async () => {
       await repository.create(entity);

@@ -1,5 +1,6 @@
 import { Transactional } from '@nestjs-cls/transactional';
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { ForbiddenError, NotFoundError } from '../errors/app.errors';
 import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
@@ -8,7 +9,7 @@ import { User } from './entities/user.entity';
 import { UserRepository } from './user.repository';
 import { randomUUID } from 'node:crypto';
 
-const CRYPT_SALT = parseInt(process.env.CRYPT_SALT || '10');
+export const CRYPT_SALT = parseInt(process.env.CRYPT_SALT || '10');
 
 @Injectable()
 export class UserService {
@@ -39,7 +40,7 @@ export class UserService {
     const user = await this.userRepository.findById(id);
 
     if (!user) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+      throw new NotFoundError('User not found');
     }
 
     return user;
@@ -57,7 +58,7 @@ export class UserService {
     const user = await this.userRepository.findById(id);
 
     if (!user) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+      throw new NotFoundError('User not found');
     }
 
     const isMatch = await bcrypt.compare(
@@ -66,7 +67,7 @@ export class UserService {
     );
 
     if (!isMatch) {
-      throw new HttpException('Wrong password', HttpStatus.FORBIDDEN);
+      throw new ForbiddenError('Wrong password');
     }
 
     const hashedPassword = await bcrypt.hash(
@@ -82,7 +83,7 @@ export class UserService {
 
   async remove(id: User['id']) {
     if (!(await this.userRepository.delete(id))) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+      throw new NotFoundError('User not found');
     }
   }
 }

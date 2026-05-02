@@ -1,9 +1,9 @@
 import { Transactional } from '@nestjs-cls/transactional';
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { ForbiddenError, NotFoundError } from '../errors/app.errors';
 import { randomUUID } from 'node:crypto';
 import { UserRole } from '../../generated/prisma/enums';
 import { JwtPayloadDto } from '../auth/dto/jwt-payload.dto';
-import { User } from '../user/entities/user.entity';
 import { ArticleFilter, ArticleRepository } from './article.repository';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
@@ -32,7 +32,7 @@ export class ArticleService {
     const article = await this.articleRepository.findById(id);
 
     if (!article) {
-      throw new HttpException('Article not found', HttpStatus.NOT_FOUND);
+      throw new NotFoundError('Article not found');
     }
 
     return article;
@@ -47,17 +47,14 @@ export class ArticleService {
     const article = await this.articleRepository.findById(id);
 
     if (!article) {
-      throw new HttpException('Article not found', HttpStatus.NOT_FOUND);
+      throw new NotFoundError('Article not found');
     }
 
     if (
       article.authorId !== currentUser.userId &&
       currentUser.role !== UserRole.admin
     ) {
-      throw new HttpException(
-        'You can only edit your own articles',
-        HttpStatus.FORBIDDEN,
-      );
+      throw new ForbiddenError('You can only edit your own articles');
     }
 
     article.updatedAt = BigInt(Date.now());
@@ -67,7 +64,7 @@ export class ArticleService {
 
   async remove(id: Article['id']) {
     if (!(await this.articleRepository.delete(id))) {
-      throw new HttpException('Article not found', HttpStatus.NOT_FOUND);
+      throw new NotFoundError('Article not found');
     }
   }
 

@@ -1,10 +1,5 @@
-import {
-  forwardRef,
-  HttpException,
-  HttpStatus,
-  Inject,
-  Injectable,
-} from '@nestjs/common';
+import { forwardRef, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { AppError, NotFoundError } from '../errors/app.errors';
 import { randomUUID } from 'node:crypto';
 import { ArticleService } from '../article/article.service';
 import { CommentFilter, CommentRepository } from './comment.repository';
@@ -21,9 +16,9 @@ export class CommentService {
 
   async create(createCommentDto: CreateCommentDto) {
     if (!(await this.articleService.exist(createCommentDto.articleId))) {
-      throw new HttpException(
-        'Article is not exist',
+      throw new AppError(
         HttpStatus.UNPROCESSABLE_ENTITY,
+        'Article is not exist',
       );
     }
 
@@ -38,7 +33,7 @@ export class CommentService {
     const comment = await this.commentRepository.findById(id);
 
     if (!comment) {
-      throw new HttpException('Comment not found', HttpStatus.NOT_FOUND);
+      throw new NotFoundError('Comment not found');
     }
 
     return comment;
@@ -50,7 +45,7 @@ export class CommentService {
 
   async remove(id: Comment['id']) {
     if (!(await this.commentRepository.delete(id))) {
-      throw new HttpException('Comment not found', HttpStatus.NOT_FOUND);
+      throw new NotFoundError('Comment not found');
     }
   }
 }

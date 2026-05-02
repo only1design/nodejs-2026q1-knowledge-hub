@@ -35,7 +35,7 @@ services:
     expose:
       - ${POSTGRES_PORT}
     ports:
-      - "${POSTGRES_PORT}:${POSTGRES_PORT}"
+      - "${POSTGRES_PORT}:5432"
     healthcheck:
       test: [ "CMD", "pg_isready" ]
       interval: 10s
