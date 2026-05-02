@@ -1,4 +1,5 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ArticleService } from '../article/article.service';
 import { Article } from '../article/entities/article.entity';
 import { ServiceUnavailableError } from '../errors/app.errors';
@@ -6,6 +7,7 @@ import { AnalyzeArticleDto } from './dto/analyze-article.dto';
 import { GenerateDto } from './dto/generate.dto';
 import { SummarizeArticleDto } from './dto/summarize-article.dto';
 import { TranslateArticleDto } from './dto/translate-article.dto';
+import { aiUsageInterceptor } from './ai-usage.interceptor';
 import { GeminiService } from './gemini.service';
 import { analyzeArticlePrompt } from './prompts/analyze-article.prompt';
 import { summarizeArticlePrompt } from './prompts/summarize-article.prompt';
@@ -26,24 +28,48 @@ export class AiService {
   constructor(
     private readonly geminiService: GeminiService,
     private readonly articleService: ArticleService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
+
+  getUsageStats() {
+    return {
+      usage: aiUsageInterceptor.getUsage(),
+      totalRequests: aiUsageInterceptor.getTotalRequest(),
+      tokenUsage: this.geminiService.getTokenUsage(),
+    };
+  }
+
+  private async withCache<T>(key: string, fn: () => Promise<T>): Promise<T> {
+    const cached = await this.cacheManager.get<T>(key);
+    if (cached) {
+      this.logger.debug(`Cache hit for key ${key}`);
+      return cached;
+    }
+
+    const result = await fn();
+    await this.cacheManager.set(key, result);
+    return result;
+  }
 
   async summarizeArticle(
     articleId: Article['id'],
     summarizeArticleDto: SummarizeArticleDto,
   ) {
     const article = await this.articleService.findOne(articleId);
+    const cacheKey = `${AiService.name}:${this.summarizeArticle.name}:${articleId}:${JSON.stringify(summarizeArticleDto)}:${article.updatedAt}`;
 
-    const content = await this.geminiService.generateContent(
-      summarizeArticlePrompt(article, summarizeArticleDto.maxLength),
-    );
+    return this.withCache(cacheKey, async () => {
+      const content = await this.geminiService.generateContent(
+        summarizeArticlePrompt(article, summarizeArticleDto.maxLength),
+      );
 
-    return {
-      articleId,
-      summary: content.text,
-      originalLength: article.content.length,
-      summaryLength: content.text.length,
-    };
+      return {
+        articleId,
+        summary: content.text,
+        originalLength: article.content.length,
+        summaryLength: content.text.length,
+      };
+    });
   }
 
   async translateArticle(
@@ -51,36 +77,39 @@ export class AiService {
     translateArticleDto: TranslateArticleDto,
   ) {
     const article = await this.articleService.findOne(articleId);
+    const cacheKey = `${AiService.name}:${this.translateArticle.name}:${articleId}:${JSON.stringify(translateArticleDto)}:${article.updatedAt}`;
 
-    const content = await this.geminiService.generateContent(
-      translateArticlePrompt(
-        article,
-        translateArticleDto.targetLanguage,
-        translateArticleDto.sourceLanguage,
-      ),
-      {
-        responseMimeType: 'application/json',
-        responseJsonSchema: translatedArticleJsonSchema,
-      },
-    );
-
-    try {
-      const translatedArticle = translatedArticleSchema.parse(
-        JSON.parse(content.text),
+    return this.withCache(cacheKey, async () => {
+      const content = await this.geminiService.generateContent(
+        translateArticlePrompt(
+          article,
+          translateArticleDto.targetLanguage,
+          translateArticleDto.sourceLanguage,
+        ),
+        {
+          responseMimeType: 'application/json',
+          responseJsonSchema: translatedArticleJsonSchema,
+        },
       );
 
-      return {
-        articleId,
-        translatedText: translatedArticle.translatedText,
-        detectedLanguage: translatedArticle.detectedLanguage,
-      };
-    } catch (e) {
-      this.logger.error(e);
+      try {
+        const translatedArticle = translatedArticleSchema.parse(
+          JSON.parse(content.text),
+        );
 
-      throw new ServiceUnavailableError(
-        'AI service returned an invalid response',
-      );
-    }
+        return {
+          articleId,
+          translatedText: translatedArticle.translatedText,
+          detectedLanguage: translatedArticle.detectedLanguage,
+        };
+      } catch (e) {
+        this.logger.error(e);
+
+        throw new ServiceUnavailableError(
+          'AI service returned an invalid response',
+        );
+      }
+    });
   }
 
   async analyzeArticle(
@@ -88,40 +117,47 @@ export class AiService {
     analyzeArticleDto: AnalyzeArticleDto,
   ) {
     const article = await this.articleService.findOne(articleId);
+    const cacheKey = `${AiService.name}:${this.analyzeArticle.name}:${articleId}:${JSON.stringify(analyzeArticleDto)}:${article.updatedAt}`;
 
-    const content = await this.geminiService.generateContent(
-      analyzeArticlePrompt(article, analyzeArticleDto.task),
-      {
-        responseMimeType: 'application/json',
-        responseJsonSchema: analyzeArticleJsonSchema,
-      },
-    );
-
-    try {
-      const analyzedArticle = analyzeArticleSchema.parse(
-        JSON.parse(content.text),
+    return this.withCache(cacheKey, async () => {
+      const content = await this.geminiService.generateContent(
+        analyzeArticlePrompt(article, analyzeArticleDto.task),
+        {
+          responseMimeType: 'application/json',
+          responseJsonSchema: analyzeArticleJsonSchema,
+        },
       );
 
-      return {
-        articleId,
-        analysis: analyzedArticle.analysis,
-        suggestions: analyzedArticle.suggestions,
-        severity: analyzedArticle.severity,
-      };
-    } catch (e) {
-      this.logger.error(e);
+      try {
+        const analyzedArticle = analyzeArticleSchema.parse(
+          JSON.parse(content.text),
+        );
 
-      throw new ServiceUnavailableError(
-        'AI service returned an invalid response',
-      );
-    }
+        return {
+          articleId,
+          analysis: analyzedArticle.analysis,
+          suggestions: analyzedArticle.suggestions,
+          severity: analyzedArticle.severity,
+        };
+      } catch (e) {
+        this.logger.error(e);
+
+        throw new ServiceUnavailableError(
+          'AI service returned an invalid response',
+        );
+      }
+    });
   }
 
   async generate(generateDto: GenerateDto) {
-    const content = await this.geminiService.generateContent(
-      generateDto.prompt,
-    );
+    const cacheKey = `${AiService.name}:${this.analyzeArticle.name}:${JSON.stringify(generateDto)}`;
 
-    return content.text;
+    return this.withCache(cacheKey, async () => {
+      const content = await this.geminiService.generateContent(
+        generateDto.prompt,
+      );
+
+      return content.text;
+    });
   }
 }

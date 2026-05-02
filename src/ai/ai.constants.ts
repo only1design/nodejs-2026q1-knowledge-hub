@@ -8,5 +8,5 @@ export const aiConfig = {
   },
   maxRetries: 3,
   rateLimit: Number(process.env.AI_RATE_LIMIT_RPM || '20'),
-  cacheTtl: Number(process.env.AI_CACHE_TTL_SEC || '300'),
+  cacheTtl: Number(process.env.AI_CACHE_TTL_SEC || '300') * 1000,
 };

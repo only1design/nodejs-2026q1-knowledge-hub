@@ -905,6 +905,46 @@ paths:
         503:
           description: AI service temporarily unavailable
 
+  /ai/usage:
+    get:
+      tags:
+        - AI
+      summary: Get AI usage statistics
+      description: Returns request counts by endpoint and cumulative token usage since service startup
+      responses:
+        200:
+          description: Usage statistics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  usage:
+                    type: object
+                    description: Request counts by endpoint
+                    additionalProperties:
+                      type: integer
+                    example:
+                      summarizeArticle: 3
+                      translateArticle: 1
+                  totalRequests:
+                    type: integer
+                    example: 4
+                  tokenUsage:
+                    type: object
+                    properties:
+                      promptTokens:
+                        type: integer
+                        example: 1250
+                      candidatesTokens:
+                        type: integer
+                        example: 430
+                      totalTokens:
+                        type: integer
+                        example: 1680
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+
   /ai/generate:
     post:
       tags:

@@ -15,15 +15,36 @@ export class GeminiService {
     },
   });
   private logger = new Logger(GeminiService.name);
+  private tokenUsage = {
+    promptTokens: 0,
+    candidatesTokens: 0,
+  };
+
+  getTokenUsage() {
+    return {
+      ...this.tokenUsage,
+      totalTokens:
+        this.tokenUsage.promptTokens + this.tokenUsage.candidatesTokens,
+    };
+  }
 
   async generateContent(contents: string, config?: GenerateContentConfig) {
     for (let attempt = 0; attempt <= aiConfig.maxRetries; attempt++) {
       try {
-        return await this.ai.models.generateContent({
+        const response = await this.ai.models.generateContent({
           model: aiConfig.gemini.model,
           contents,
           config,
         });
+
+        if (response.usageMetadata) {
+          this.tokenUsage.promptTokens +=
+            response.usageMetadata.promptTokenCount ?? 0;
+          this.tokenUsage.candidatesTokens +=
+            response.usageMetadata.candidatesTokenCount ?? 0;
+        }
+
+        return response;
       } catch (e) {
         if (e instanceof ApiError) {
           this.logger.error(

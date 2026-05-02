@@ -1,13 +1,17 @@
 import {
   Controller,
+  Get,
   Post,
   Body,
   Param,
   ParseUUIDPipe,
   HttpCode,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
-import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
+import { SkipThrottle, Throttle } from '@nestjs/throttler';
+import { AiThrottlerGuard } from './ai-throttler.guard';
+import { aiUsageInterceptor } from './ai-usage.interceptor';
 import { aiConfig } from './ai.constants';
 import { AiService } from './ai.service';
 import { AnalyzeArticleDto } from './dto/analyze-article.dto';
@@ -16,11 +20,18 @@ import { SummarizeArticleDto } from './dto/summarize-article.dto';
 import { Article } from 'src/article/entities/article.entity';
 import { TranslateArticleDto } from './dto/translate-article.dto';
 
-@UseGuards(ThrottlerGuard)
+@UseGuards(AiThrottlerGuard)
 @Throttle({ default: { ttl: 60_000, limit: aiConfig.rateLimit } })
+@UseInterceptors(aiUsageInterceptor)
 @Controller('ai')
 export class AiController {
   constructor(private readonly aiService: AiService) {}
+
+  @Get('usage')
+  @SkipThrottle()
+  getUsage() {
+    return this.aiService.getUsageStats();
+  }
 
   @Post('articles/:articleId/summarize')
   @HttpCode(200)
