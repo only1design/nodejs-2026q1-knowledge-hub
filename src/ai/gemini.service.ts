@@ -19,6 +19,9 @@ export class GeminiService {
     promptTokens: 0,
     candidatesTokens: 0,
   };
+  private latencyMs: number[] = [];
+  private errorCount = 0;
+  private retryCount = 0;
 
   getTokenUsage() {
     return {
@@ -28,7 +31,31 @@ export class GeminiService {
     };
   }
 
+  getLatencyStats() {
+    if (this.latencyMs.length === 0) {
+      return { avg: 0, min: 0, max: 0, last: 0, count: 0 };
+    }
+
+    const sum = this.latencyMs.reduce((a, b) => a + b, 0);
+    return {
+      avg: Math.round(sum / this.latencyMs.length),
+      min: Math.min(...this.latencyMs),
+      max: Math.max(...this.latencyMs),
+      last: this.latencyMs[this.latencyMs.length - 1],
+      count: this.latencyMs.length,
+    };
+  }
+
+  getErrorStats() {
+    return {
+      total: this.errorCount,
+      retries: this.retryCount,
+    };
+  }
+
   async generateContent(contents: string, config?: GenerateContentConfig) {
+    const start = Date.now();
+
     for (let attempt = 0; attempt <= aiConfig.maxRetries; attempt++) {
       try {
         const response = await this.ai.models.generateContent({
@@ -36,6 +63,8 @@ export class GeminiService {
           contents,
           config,
         });
+
+        this.latencyMs.push(Date.now() - start);
 
         if (response.usageMetadata) {
           this.tokenUsage.promptTokens +=
@@ -55,6 +84,7 @@ export class GeminiService {
             e.status === HttpStatus.UNAUTHORIZED ||
             e.status === HttpStatus.FORBIDDEN
           ) {
+            this.errorCount++;
             throw new InternalServiceError('AI service configuration error');
           }
 
@@ -62,6 +92,7 @@ export class GeminiService {
             e.status === HttpStatus.TOO_MANY_REQUESTS &&
             attempt < aiConfig.maxRetries
           ) {
+            this.retryCount++;
             const delay = Math.pow(2, attempt) * 1000;
             this.logger.warn(
               `Rate limited, retrying in ${delay}ms (attempt ${attempt + 1}/${aiConfig.maxRetries})`,
@@ -73,6 +104,7 @@ export class GeminiService {
           this.logger.error('Unexpected Gemini error', e);
         }
 
+        this.errorCount++;
         throw new ServiceUnavailableError(
           'AI service is temporarily unavailable',
         );

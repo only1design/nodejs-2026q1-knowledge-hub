@@ -31,21 +31,35 @@ export class AiService {
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
+  private cacheHits = 0;
+  private cacheMisses = 0;
+
   getUsageStats() {
     return {
       usage: aiUsageInterceptor.getUsage(),
       totalRequests: aiUsageInterceptor.getTotalRequest(),
       tokenUsage: this.geminiService.getTokenUsage(),
+      cache: {
+        hits: this.cacheHits,
+        misses: this.cacheMisses,
+        hitRate:
+          this.cacheHits + this.cacheMisses > 0
+            ? +(this.cacheHits / (this.cacheHits + this.cacheMisses)).toFixed(2)
+            : 0,
+      },
+      latency: this.geminiService.getLatencyStats(),
+      errors: this.geminiService.getErrorStats(),
     };
   }
 
   private async withCache<T>(key: string, fn: () => Promise<T>): Promise<T> {
     const cached = await this.cacheManager.get<T>(key);
     if (cached) {
-      this.logger.debug(`Cache hit for key ${key}`);
+      this.cacheHits++;
       return cached;
     }
 
+    this.cacheMisses++;
     const result = await fn();
     await this.cacheManager.set(key, result);
     return result;
