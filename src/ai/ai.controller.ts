@@ -6,10 +6,13 @@ import {
   Param,
   ParseUUIDPipe,
   HttpCode,
+  Req,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { SkipThrottle, Throttle } from '@nestjs/throttler';
+import { CurrentUser } from '../auth/auth.decorators';
+import { JwtPayloadDto } from '../auth/dto/jwt-payload.dto';
 import { AiThrottlerGuard } from './ai-throttler.guard';
 import { aiUsageInterceptor } from './ai-usage.interceptor';
 import { aiConfig } from './ai.constants';
@@ -71,7 +74,10 @@ export class AiController {
 
   @Post('generate')
   @HttpCode(200)
-  async generate(@Body() generateDto: GenerateDto) {
-    return await this.aiService.generate(generateDto);
+  async generate(
+    @Body() generateDto: GenerateDto,
+    @CurrentUser() currentUser: JwtPayloadDto,
+  ) {
+    return await this.aiService.generate(currentUser.userId, generateDto);
   }
 }

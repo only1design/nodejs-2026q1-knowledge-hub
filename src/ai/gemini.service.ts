@@ -1,4 +1,10 @@
-import { ApiError, GenerateContentConfig, GoogleGenAI } from '@google/genai';
+import {
+  ApiError,
+  Chat,
+  GenerateContentConfig,
+  GenerateContentResponse,
+  GoogleGenAI,
+} from '@google/genai';
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import {
   InternalServiceError,
@@ -22,6 +28,16 @@ export class GeminiService {
   private latencyMs: number[] = [];
   private errorCount = 0;
   private retryCount = 0;
+  private chatSessions = new Map<string, Chat>();
+
+  private getOrCreateChat(sessionId: string): Chat {
+    let chat = this.chatSessions.get(sessionId);
+    if (!chat) {
+      chat = this.ai.chats.create({ model: aiConfig.gemini.model });
+      this.chatSessions.set(sessionId, chat);
+    }
+    return chat;
+  }
 
   getTokenUsage() {
     return {
@@ -53,16 +69,30 @@ export class GeminiService {
     };
   }
 
+  async sendMessage(sessionId: string, message: string) {
+    const chat = this.getOrCreateChat(sessionId);
+
+    return this.execute(() => chat.sendMessage({ message }));
+  }
+
   async generateContent(contents: string, config?: GenerateContentConfig) {
+    return this.execute(() =>
+      this.ai.models.generateContent({
+        model: aiConfig.gemini.model,
+        contents,
+        config,
+      }),
+    );
+  }
+
+  private async execute<T extends GenerateContentResponse>(
+    fn: () => Promise<T>,
+  ): Promise<T> {
     const start = Date.now();
 
     for (let attempt = 0; attempt <= aiConfig.maxRetries; attempt++) {
       try {
-        const response = await this.ai.models.generateContent({
-          model: aiConfig.gemini.model,
-          contents,
-          config,
-        });
+        const response = await fn();
 
         this.latencyMs.push(Date.now() - start);
 

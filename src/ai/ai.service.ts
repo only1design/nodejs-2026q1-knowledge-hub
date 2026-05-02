@@ -163,15 +163,12 @@ export class AiService {
     });
   }
 
-  async generate(generateDto: GenerateDto) {
-    const cacheKey = `${AiService.name}:${this.analyzeArticle.name}:${JSON.stringify(generateDto)}`;
+  async generate(userId: string, generateDto: GenerateDto) {
+    const response = await this.geminiService.sendMessage(
+      userId,
+      generateDto.prompt,
+    );
 
-    return this.withCache(cacheKey, async () => {
-      const content = await this.geminiService.generateContent(
-        generateDto.prompt,
-      );
-
-      return content.text;
-    });
+    return response.text;
   }
 }
