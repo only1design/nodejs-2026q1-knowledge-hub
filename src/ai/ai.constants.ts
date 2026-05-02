@@ -4,7 +4,7 @@ export const aiConfig = {
     baseUrl:
       process.env.GEMINI_API_BASE_URL ||
       'https://generativelanguage.googleapis.com',
-    model: process.env.GEMINI_MODEL || 'gemini-2.0-flash',
+    model: process.env.GEMINI_MODEL || 'gemini-3-flash-preview',
   },
   maxRetries: 3,
   rateLimit: Number(process.env.AI_RATE_LIMIT_RPM || '20'),

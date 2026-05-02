@@ -6,15 +6,15 @@ class AiUsageInterceptor implements NestInterceptor {
   private totalRequests = 0;
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
-    const handler = context.getHandler().name;
+    const handlerName = context.getHandler().name;
 
-    if (handler === 'getUsage') {
+    if (handlerName === 'getUsage') {
       return next.handle();
     }
 
     return next.handle().pipe(
       tap(() => {
-        this.usage.set(handler, (this.usage.get(handler) ?? 0) + 1);
+        this.usage.set(handlerName, (this.usage.get(handlerName) ?? 0) + 1);
         this.totalRequests++;
       }),
     );

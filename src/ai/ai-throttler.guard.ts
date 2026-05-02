@@ -9,8 +9,8 @@ export class AiThrottlerGuard extends ThrottlerGuard {
     throttlerLimitDetail: ThrottlerLimitDetail,
   ): Promise<void> {
     const res = context.switchToHttp().getResponse();
-    const ttlSeconds = Math.ceil(throttlerLimitDetail.ttl / 1000);
-    res.header('Retry-After', String(ttlSeconds));
+    const retryAfter = Math.ceil(throttlerLimitDetail.timeToExpire / 1000);
+    res.header('Retry-After', String(retryAfter));
     res.status(HttpStatus.TOO_MANY_REQUESTS);
 
     throw new ThrottlerException();
