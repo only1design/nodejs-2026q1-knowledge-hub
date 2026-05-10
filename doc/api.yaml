@@ -983,8 +983,17 @@ paths:
     post:
       tags:
         - RAG
-      summary: Index Knowledge Hub articles
-      description: Builds or refreshes the vector index using articles from the database
+      summary: Index Knowledge Hub articles (incremental)
+      description: |
+        Builds or refreshes the vector index using articles from the database.
+
+        Indexing is **incremental and idempotent**: only articles whose `updatedAt`
+        is newer than `lastIndexedAt` AND whose content hash differs from
+        `lastIndexedHash` are re-embedded. Re-running with no changes is a no-op
+        and incurs zero embedding cost.
+
+        Use `force: true` to bypass change detection (e.g., after chunking strategy
+        or embedding model changes).
       requestBody:
         content:
           application/json:
@@ -1000,6 +1009,10 @@ paths:
                     type: string
                     format: uuid
                   description: Optional selective reindex by article IDs
+                force:
+                  type: boolean
+                  default: false
+                  description: Re-index all matching articles, ignoring lastIndexedAt/lastIndexedHash
       responses:
         200:
           description: Indexing result
@@ -1010,10 +1023,15 @@ paths:
                 properties:
                   indexedArticles:
                     type: integer
-                    example: 12
+                    description: Number of articles re-embedded and upserted
+                    example: 1
+                  skippedArticles:
+                    type: integer
+                    description: Number of articles skipped because content was unchanged
+                    example: 7
                   indexedChunks:
                     type: integer
-                    example: 47
+                    example: 6
                   vectorCollection:
                     type: string
                     example: knowledge_hub_articles

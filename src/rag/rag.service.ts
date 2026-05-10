@@ -12,6 +12,7 @@ import {
 import { RagChatDto } from './dto/rag-chat.dto';
 import { RagSearchDto } from './dto/rag-search.dto';
 import { ReindexDto } from './dto/reindex.dto';
+import { computeArticleHash, needsReindex } from './indexing/article-hash';
 import { ragGroundedPrompt } from './prompts/rag-grounded.prompt';
 import { geminiEmbeddingTaskType, ragConfig } from './rag.constants';
 import { mmrRerank } from './reranking/mmr';
@@ -33,21 +34,29 @@ export class RagService {
   ) {}
 
   async index(reindexDto: ReindexDto) {
-    const articles = await this.articleService.findAll({
+    const allArticles = await this.articleService.findAll({
       status: reindexDto.onlyPublished ? ArticleStatus.PUBLISHED : undefined,
       ids: reindexDto.articleIds ?? undefined,
     });
 
-    if (articles.length === 0) {
+    const articlesToIndex = reindexDto.force
+      ? allArticles
+      : allArticles.filter(needsReindex);
+
+    const skippedCount = allArticles.length - articlesToIndex.length;
+
+    if (articlesToIndex.length === 0) {
+      this.logger.log(`Index up to date (${skippedCount} articles skipped)`);
       return {
         indexedArticles: 0,
+        skippedArticles: skippedCount,
         indexedChunks: 0,
         vectorCollection: this.articleVectorStore.collectionName,
       };
     }
 
     const chunkPayloads = (
-      await Promise.all(articles.map(chunkArticle))
+      await Promise.all(articlesToIndex.map(chunkArticle))
     ).flat();
     const vectors = await this.embedChunks(
       chunkPayloads.map((payload) => payload.chunk),
@@ -59,19 +68,30 @@ export class RagService {
     }));
 
     await Promise.all(
-      articles.map((article) =>
+      articlesToIndex.map((article) =>
         this.articleVectorStore.deleteByArticleId(article.id),
       ),
     );
 
     await this.articleVectorStore.upsertChunks(points);
 
+    const indexedAt = BigInt(Date.now());
+    await Promise.all(
+      articlesToIndex.map((article) =>
+        this.articleService.markIndexed(article.id, {
+          lastIndexedAt: indexedAt,
+          lastIndexedHash: computeArticleHash(article),
+        }),
+      ),
+    );
+
     this.logger.log(
-      `Indexed ${articles.length} articles into ${chunkPayloads.length} chunks`,
+      `Indexed ${articlesToIndex.length} articles into ${chunkPayloads.length} chunks (${skippedCount} skipped)`,
     );
 
     return {
-      indexedArticles: articles.length,
+      indexedArticles: articlesToIndex.length,
+      skippedArticles: skippedCount,
       indexedChunks: chunkPayloads.length,
       vectorCollection: this.articleVectorStore.collectionName,
     };

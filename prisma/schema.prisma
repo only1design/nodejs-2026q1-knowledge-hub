@@ -32,14 +32,16 @@ enum ArticleStatus {
 }
 
 model Article {
-  id         String        @id @unique @default(uuid(4))
-  title      String
-  content    String
-  status     ArticleStatus
-  authorId   String?
-  categoryId String?
-  createdAt  BigInt
-  updatedAt  BigInt
+  id               String        @id @unique @default(uuid(4))
+  title            String
+  content          String
+  status           ArticleStatus
+  authorId         String?
+  categoryId       String?
+  createdAt        BigInt
+  updatedAt        BigInt
+  lastIndexedAt    BigInt?
+  lastIndexedHash  String?
 
   author   User?     @relation(fields: [authorId], references: [id], onDelete: SetNull)
   category Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)

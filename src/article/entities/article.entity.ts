@@ -25,4 +25,8 @@ export class Article {
   createdAt: bigint;
 
   updatedAt: bigint;
+
+  lastIndexedAt?: bigint | null;
+
+  lastIndexedHash?: string | null;
 }
