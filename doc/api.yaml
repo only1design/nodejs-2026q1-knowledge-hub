@@ -978,3 +978,212 @@ paths:
           description: Rate limit exceeded
         503:
           description: AI service temporarily unavailable
+
+  /ai/rag/index:
+    post:
+      tags:
+        - RAG
+      summary: Index Knowledge Hub articles
+      description: Builds or refreshes the vector index using articles from the database
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                onlyPublished:
+                  type: boolean
+                  default: true
+                articleIds:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+                  description: Optional selective reindex by article IDs
+      responses:
+        200:
+          description: Indexing result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  indexedArticles:
+                    type: integer
+                    example: 12
+                  indexedChunks:
+                    type: integer
+                    example: 47
+                  vectorCollection:
+                    type: string
+                    example: knowledge_hub_articles
+        503:
+          description: Vector DB or AI service unavailable
+
+  /ai/rag/search:
+    post:
+      tags:
+        - RAG
+      summary: Semantic search in Knowledge Hub
+      description: Embeds the query and retrieves the most relevant article chunks
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - query
+              properties:
+                query:
+                  type: string
+                  example: How does caching work in NestJS?
+                limit:
+                  type: integer
+                  minimum: 1
+                  maximum: 20
+                  default: 5
+                articleStatus:
+                  type: string
+                  enum: [draft, published, archived]
+                categoryId:
+                  type: string
+                  format: uuid
+                tags:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        200:
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        articleId:
+                          type: string
+                          format: uuid
+                        articleTitle:
+                          type: string
+                        chunk:
+                          type: string
+                        similarity:
+                          type: number
+                          format: float
+                          example: 0.87
+        400:
+          description: query is missing
+        503:
+          description: Vector DB or AI service unavailable
+
+  /ai/rag/chat:
+    post:
+      tags:
+        - RAG
+      summary: Chat with Knowledge Hub RAG
+      description: Answers a question grounded in indexed article content with source attribution
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - question
+              properties:
+                question:
+                  type: string
+                  example: What are the best practices for NestJS error handling?
+                conversationId:
+                  type: string
+                  format: uuid
+                  description: Omit to start a new conversation
+      responses:
+        200:
+          description: Grounded answer with sources
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  answer:
+                    type: string
+                  sources:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        articleId:
+                          type: string
+                          format: uuid
+                        articleTitle:
+                          type: string
+                        relevantChunk:
+                          type: string
+                  conversationId:
+                    type: string
+                    format: uuid
+        400:
+          description: question is missing
+        503:
+          description: Vector DB or AI service unavailable
+
+  /ai/rag/index/articles/{articleId}:
+    delete:
+      tags:
+        - RAG
+      summary: Delete article from vector index
+      description: Removes all vector entries linked to the given article
+      parameters:
+        - name: articleId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        204:
+          description: Vectors removed successfully
+        404:
+          description: Article not found in vector index
+
+  /ai/rag/chat/{conversationId}/history:
+    get:
+      tags:
+        - RAG
+      summary: Get RAG conversation history
+      description: Returns stored messages for the given conversation ID
+      parameters:
+        - name: conversationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: Conversation history
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  conversationId:
+                    type: string
+                    format: uuid
+                  messages:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        role:
+                          type: string
+                          enum: [user, assistant]
+                        content:
+                          type: string

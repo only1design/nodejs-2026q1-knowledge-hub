@@ -1,6 +1,8 @@
 import {
   ApiError,
   Chat,
+  ContentListUnion,
+  EmbedContentConfig,
   GenerateContentConfig,
   GenerateContentResponse,
   GoogleGenAI,
@@ -69,13 +71,16 @@ export class GeminiService {
     };
   }
 
-  async sendMessage(sessionId: string, message: string) {
+  async sendChatMessage(sessionId: string, message: string) {
     const chat = this.getOrCreateChat(sessionId);
 
     return this.execute(() => chat.sendMessage({ message }));
   }
 
-  async generateContent(contents: string, config?: GenerateContentConfig) {
+  async generateContent(
+    contents: ContentListUnion,
+    config?: GenerateContentConfig,
+  ) {
     return this.execute(() =>
       this.ai.models.generateContent({
         model: aiConfig.gemini.model,
@@ -85,9 +90,17 @@ export class GeminiService {
     );
   }
 
-  private async execute<T extends GenerateContentResponse>(
-    fn: () => Promise<T>,
-  ): Promise<T> {
+  async embedContent(contents: ContentListUnion, config: EmbedContentConfig) {
+    return this.execute(() =>
+      this.ai.models.embedContent({
+        model: aiConfig.gemini.embeddingModel,
+        contents,
+        config,
+      }),
+    );
+  }
+
+  private async execute<T>(fn: () => Promise<T>): Promise<T> {
     const start = Date.now();
 
     for (let attempt = 0; attempt <= aiConfig.maxRetries; attempt++) {
@@ -96,11 +109,17 @@ export class GeminiService {
 
         this.latencyMs.push(Date.now() - start);
 
-        if (response.usageMetadata) {
-          this.tokenUsage.promptTokens +=
-            response.usageMetadata.promptTokenCount ?? 0;
-          this.tokenUsage.candidatesTokens +=
-            response.usageMetadata.candidatesTokenCount ?? 0;
+        if (
+          response &&
+          typeof response === 'object' &&
+          'usageMetadata' in response
+        ) {
+          const meta = (response as unknown as GenerateContentResponse)
+            .usageMetadata;
+          if (meta) {
+            this.tokenUsage.promptTokens += meta.promptTokenCount ?? 0;
+            this.tokenUsage.candidatesTokens += meta.candidatesTokenCount ?? 0;
+          }
         }
 
         return response;

@@ -5,6 +5,7 @@ export const aiConfig = {
       process.env.GEMINI_API_BASE_URL ||
       'https://generativelanguage.googleapis.com',
     model: process.env.GEMINI_MODEL || 'gemini-3-flash-preview',
+    embeddingModel: process.env.GEMINI_EMBEDDING_MODEL || 'gemini-embedding-2',
   },
   maxRetries: 3,
   rateLimit: Number(process.env.AI_RATE_LIMIT_RPM || '20'),

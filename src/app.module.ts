@@ -12,6 +12,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { PrismaService } from './prisma/prisma.service';
 import { AuthModule } from './auth/auth.module';
 import { AiModule } from './ai/ai.module';
+import { RagModule } from './rag/rag.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { AiModule } from './ai/ai.module';
     PrismaModule,
     AuthModule,
     AiModule,
+    RagModule,
   ],
   controllers: [],
   providers: [],
