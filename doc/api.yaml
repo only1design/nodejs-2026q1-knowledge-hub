@@ -1082,6 +1082,68 @@ paths:
         503:
           description: Vector DB or AI service unavailable
 
+  /ai/rag/hybrid-search:
+    post:
+      tags:
+        - RAG
+      summary: Hybrid search (semantic + lexical) in Knowledge Hub
+      description: Combines dense semantic embeddings with sparse term-frequency vectors using Reciprocal Rank Fusion for improved retrieval quality
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - query
+              properties:
+                query:
+                  type: string
+                  example: How does caching work in NestJS?
+                limit:
+                  type: integer
+                  minimum: 1
+                  maximum: 20
+                  default: 5
+                articleStatus:
+                  type: string
+                  enum: [draft, published, archived]
+                categoryId:
+                  type: string
+                  format: uuid
+                tags:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        200:
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        articleId:
+                          type: string
+                          format: uuid
+                        articleTitle:
+                          type: string
+                        chunk:
+                          type: string
+                        similarity:
+                          type: number
+                          format: float
+                          example: 0.04
+        400:
+          description: query is missing
+        503:
+          description: Vector DB or AI service unavailable
+
   /ai/rag/chat:
     post:
       tags:

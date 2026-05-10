@@ -30,6 +30,12 @@ export class RagController {
     return this.ragService.search(ragSearchDto);
   }
 
+  @Post('hybrid-search')
+  @HttpCode(HttpStatus.OK)
+  hybridSearch(@Body() ragSearchDto: RagSearchDto) {
+    return this.ragService.hybridSearch(ragSearchDto);
+  }
+
   @Post('chat')
   @HttpCode(HttpStatus.OK)
   chat(@Body() ragChatDto: RagChatDto) {

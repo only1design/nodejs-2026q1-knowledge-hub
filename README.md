@@ -137,7 +137,7 @@ Open Prisma Studio (visual database browser):
 npx prisma studio
 ```
 
-Reset database (drops all data, re-applies migrations and seed):
+Reset database (drops all data, re-applies migrations):
 
 ```
 npx prisma migrate reset

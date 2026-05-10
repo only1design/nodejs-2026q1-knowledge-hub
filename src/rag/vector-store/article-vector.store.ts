@@ -3,6 +3,7 @@ import { QdrantClient } from '@qdrant/js-client-rest';
 import { randomUUID } from 'node:crypto';
 import { ServiceUnavailableError } from '../../errors/app.errors';
 import { ragConfig } from '../rag.constants';
+import { computeSparseVector } from './sparse-vectorizer';
 
 export interface ChunkPayload {
   articleId: string;
@@ -29,6 +30,20 @@ export interface VectorSearchHit {
   score: number;
 }
 
+export interface VectorSearchParams {
+  vector: number[];
+  limit: number;
+  filter?: VectorSearchFilter;
+  scoreThreshold?: number;
+}
+
+export interface HybridSearchParams extends VectorSearchParams {
+  queryText: string;
+}
+
+const DENSE_VECTOR_NAME = 'dense';
+const SPARSE_VECTOR_NAME = 'sparse';
+
 @Injectable()
 export class ArticleVectorStore implements OnModuleInit {
   private readonly logger = new Logger(ArticleVectorStore.name);
@@ -50,8 +65,15 @@ export class ArticleVectorStore implements OnModuleInit {
 
       await this.client.createCollection(this.collection, {
         vectors: {
-          size: ragConfig.embedding.dimensions,
-          distance: 'Cosine',
+          [DENSE_VECTOR_NAME]: {
+            size: ragConfig.embedding.dimensions,
+            distance: 'Cosine',
+          },
+        },
+        sparse_vectors: {
+          [SPARSE_VECTOR_NAME]: {
+            modifier: 'idf',
+          },
         },
       });
       await this.client.createPayloadIndex(this.collection, {
@@ -73,7 +95,10 @@ export class ArticleVectorStore implements OnModuleInit {
         wait: true,
         points: points.map((point) => ({
           id: randomUUID(),
-          vector: point.vector,
+          vector: {
+            [DENSE_VECTOR_NAME]: point.vector,
+            [SPARSE_VECTOR_NAME]: computeSparseVector(point.payload.chunk),
+          },
           payload: point.payload as unknown as Record<string, unknown>,
         })),
       });
@@ -83,21 +108,69 @@ export class ArticleVectorStore implements OnModuleInit {
     }
   }
 
-  async search(
-    searchConfig: Parameters<QdrantClient['search']>[1],
-  ): Promise<VectorSearchHit[]> {
+  async semanticSearch({
+    vector,
+    limit,
+    filter,
+    scoreThreshold,
+  }: VectorSearchParams): Promise<VectorSearchHit[]> {
     try {
-      const results = await this.client.search(this.collection, {
+      const results = await this.client.query(this.collection, {
+        query: vector,
+        using: DENSE_VECTOR_NAME,
+        limit,
+        score_threshold: scoreThreshold,
+        filter: this.buildFilter(filter),
         with_payload: true,
-        ...searchConfig,
       });
 
-      return results.map((result) => ({
+      return results.points.map((result) => ({
         payload: result.payload as unknown as ChunkPayload,
         score: result.score,
       }));
     } catch (e) {
       this.logger.error('Vector search failed', e);
+      throw new ServiceUnavailableError('Vector DB is unavailable');
+    }
+  }
+
+  async hybridSearch({
+    queryText,
+    vector,
+    limit,
+    filter,
+    scoreThreshold,
+  }: HybridSearchParams): Promise<VectorSearchHit[]> {
+    const sparseVector = computeSparseVector(queryText);
+    const prefetchLimit = limit * 3;
+
+    try {
+      const results = await this.client.query(this.collection, {
+        prefetch: [
+          {
+            query: vector,
+            using: DENSE_VECTOR_NAME,
+            limit: prefetchLimit,
+          },
+          {
+            query: sparseVector,
+            using: SPARSE_VECTOR_NAME,
+            limit: prefetchLimit,
+          },
+        ],
+        query: { fusion: 'rrf' },
+        limit,
+        score_threshold: scoreThreshold,
+        filter: this.buildFilter(filter),
+        with_payload: true,
+      });
+
+      return results.points.map((result) => ({
+        payload: result.payload as unknown as ChunkPayload,
+        score: result.score,
+      }));
+    } catch (e) {
+      this.logger.error('Hybrid vector search failed', e);
       throw new ServiceUnavailableError('Vector DB is unavailable');
     }
   }
@@ -124,7 +197,7 @@ export class ArticleVectorStore implements OnModuleInit {
     }
   }
 
-  public buildFilter(filter?: VectorSearchFilter) {
+  private buildFilter(filter?: VectorSearchFilter) {
     if (!filter) return undefined;
 
     const must: Array<Record<string, unknown>> = [];

@@ -45,12 +45,6 @@ export class RagService {
       };
     }
 
-    await Promise.all(
-      articles.map((article) =>
-        this.articleVectorStore.deleteByArticleId(article.id),
-      ),
-    );
-
     const chunkPayloads = (
       await Promise.all(articles.map(chunkArticle))
     ).flat();
@@ -62,6 +56,13 @@ export class RagService {
       vector: vectors[i],
       payload,
     }));
+
+    await Promise.all(
+      articles.map((article) =>
+        this.articleVectorStore.deleteByArticleId(article.id),
+      ),
+    );
+
     await this.articleVectorStore.upsertChunks(points);
 
     this.logger.log(
@@ -112,14 +113,38 @@ export class RagService {
   async search(ragSearchDto: RagSearchDto) {
     const vector = await this.embedQuery(ragSearchDto.query);
 
-    const results = await this.articleVectorStore.search({
+    const results = await this.articleVectorStore.semanticSearch({
       vector,
       limit: ragSearchDto.limit,
-      filter: this.articleVectorStore.buildFilter({
+      filter: {
         status: ragSearchDto.articleStatus,
         categoryId: ragSearchDto.categoryId,
         tags: ragSearchDto.tags,
-      }),
+      },
+    });
+
+    return {
+      results: results.map((hit) => ({
+        articleId: hit.payload.articleId,
+        articleTitle: hit.payload.articleTitle,
+        chunk: hit.payload.chunk,
+        similarity: hit.score,
+      })),
+    };
+  }
+
+  async hybridSearch(ragSearchDto: RagSearchDto) {
+    const vector = await this.embedQuery(ragSearchDto.query);
+
+    const results = await this.articleVectorStore.hybridSearch({
+      queryText: ragSearchDto.query,
+      vector,
+      limit: ragSearchDto.limit,
+      filter: {
+        status: ragSearchDto.articleStatus,
+        categoryId: ragSearchDto.categoryId,
+        tags: ragSearchDto.tags,
+      },
     });
 
     return {
@@ -135,10 +160,10 @@ export class RagService {
   async chat(ragChatDto: RagChatDto) {
     const conversationId = ragChatDto.conversationId ?? randomUUID();
     const queryVector = await this.embedQuery(ragChatDto.question);
-    const vectorSearchHits = await this.articleVectorStore.search({
+    const vectorSearchHits = await this.articleVectorStore.semanticSearch({
       vector: queryVector,
       limit: ragConfig.retrieval.topK,
-      score_threshold: ragConfig.retrieval.scoreThreshold,
+      scoreThreshold: ragConfig.retrieval.scoreThreshold,
     });
 
     this.logger.debug(

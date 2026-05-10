@@ -17,8 +17,13 @@ export const ragConfig = {
     batchSize: Number(process.env.EMBEDDING_BATCH_SIZE ?? '100'),
   },
   retrieval: {
-    scoreThreshold: Number(process.env.RAG_RETRIEVAL_SCORE_THRESHOLD ?? '0.7'),
-    topK: Number(process.env.RAG_RETRIEVAL_TOP_K ?? '5'),
+    scoreThreshold: Number(
+      process.env.RAG_RETRIEVAL_SEMANTIC_SCORE_THRESHOLD ?? '0.7',
+    ),
+    hybridScoreThreshold: Number(
+      process.env.RAG_RETRIEVAL_HYBRID_SCORE_THRESHOLD ?? '0.1',
+    ),
+    topK: Number(process.env.RAG_RETRIEVAL_TOP_K ?? '10'),
   },
 };
 
