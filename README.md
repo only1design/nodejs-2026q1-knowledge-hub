@@ -97,7 +97,7 @@ The default values work out of the box. `DATABASE_URL` uses `db` hostname for th
 
 ### Running with Docker Compose
 
-Start all services (app + PostgreSQL):
+Start all services (app + PostgreSQL + Qdrant vector DB):
 
 ```
 docker compose up --build
@@ -108,6 +108,17 @@ Use debug profile to start Adminer database management tool at http://localhost:
 ```
 docker compose --profile debug up --build
 ```
+
+### Vector Database (Qdrant)
+
+The RAG layer stores article embeddings in [Qdrant](https://qdrant.tech/) `v1.17.1`, started as the `vectordb` service in `docker-compose.yml` on port `6333`. The `app` service waits for `vectordb` to become healthy before starting (TCP healthcheck on `6333`).
+
+| Variable | Default | Description |
+|---|---|---|
+| `RAG_VECTOR_DB_URL` | `http://vectordb:6333` | Qdrant URL (use `http://localhost:6333` from the host) |
+| `RAG_VECTOR_COLLECTION` | `knowledge_hub_articles` | Qdrant collection name |
+
+The collection is created automatically on app startup with named dense (768-dim, cosine) and sparse (TF + server-side IDF) vectors. To inspect the collection visually, open the Qdrant dashboard at http://localhost:6333/dashboard.
 
 ### Database commands
 
@@ -155,9 +166,14 @@ The app integrates with Google Gemini API to provide AI-powered article analysis
 4. Select or create a Google Cloud project
 5. Copy the generated API key
 
-### Model
+### Models
 
-The app uses `gemini-3-flash-preview` by default. You can change the model via the `GEMINI_MODEL` environment variable in `.env`.
+| Purpose | Model (default) | Env variable |
+|---|---|---|
+| Text generation (summarization, translation, RAG answers) | `gemini-3-flash-preview` | `GEMINI_MODEL` |
+| Embeddings (RAG indexing & retrieval) | `gemini-embedding-2` (768-dim) | `GEMINI_EMBEDDING_MODEL` |
+
+Both models use the same `GEMINI_API_KEY`. Embedding output dimensionality is configurable via `EMBEDDING_DIMENSION` (default 768).
 
 ### Setup
 
@@ -186,9 +202,11 @@ The app uses `gemini-3-flash-preview` by default. You can change the model via t
    docker compose up --build
    ```
 
-### AI Endpoints
+### AI & RAG Endpoints
 
 All endpoints require authentication (Bearer token). See OpenAPI docs at http://localhost:4000/doc/ for full details.
+
+**Before using RAG endpoints** (`/ai/rag/search`, `/ai/rag/hybrid-search`, `/ai/rag/chat`), build the vector index by calling `POST /ai/rag/index`. Indexing is incremental — re-running it only re-embeds articles whose content has changed. Pass `{ "force": true }` to re-embed everything.
 
 ### Known Limitations
 
