@@ -14,6 +14,7 @@ import { RagSearchDto } from './dto/rag-search.dto';
 import { ReindexDto } from './dto/reindex.dto';
 import { ragGroundedPrompt } from './prompts/rag-grounded.prompt';
 import { geminiEmbeddingTaskType, ragConfig } from './rag.constants';
+import { mmrRerank } from './reranking/mmr';
 import {
   ragChatResponseJsonSchema,
   ragChatResponseSchema,
@@ -160,14 +161,29 @@ export class RagService {
   async chat(ragChatDto: RagChatDto) {
     const conversationId = ragChatDto.conversationId ?? randomUUID();
     const queryVector = await this.embedQuery(ragChatDto.question);
-    const vectorSearchHits = await this.articleVectorStore.semanticSearch({
+
+    const candidates = await this.articleVectorStore.hybridSearch({
+      queryText: ragChatDto.question,
       vector: queryVector,
-      limit: ragConfig.retrieval.topK,
-      scoreThreshold: ragConfig.retrieval.scoreThreshold,
+      limit: ragConfig.retrieval.topK * ragConfig.rerank.candidateMultiplier,
+      scoreThreshold: ragConfig.retrieval.hybridScoreThreshold,
+      withVector: true,
     });
 
     this.logger.debug(
-      `RAG search: ${vectorSearchHits.length} hits, scores: [${vectorSearchHits.map((h) => h.score.toFixed(2)).join(', ')}]`,
+      `RAG search: ${candidates.length} hits, scores: [${candidates.map((h) => h.score.toFixed(2)).join(', ')}]`,
+    );
+
+    const vectorSearchHits = mmrRerank({
+      queryVector,
+      candidates,
+      topK: ragConfig.retrieval.topK,
+      lambda: ragConfig.rerank.mmrLambda,
+      enabled: ragConfig.rerank.enabled,
+    });
+
+    this.logger.debug(
+      `RAG rerank: ${vectorSearchHits.length} hits, scores: [${vectorSearchHits.map((h) => h.score.toFixed(2)).join(', ')}]`,
     );
 
     if (vectorSearchHits.length === 0) {

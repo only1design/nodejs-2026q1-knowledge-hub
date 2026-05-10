@@ -28,6 +28,7 @@ export interface VectorSearchFilter {
 export interface VectorSearchHit {
   payload: ChunkPayload;
   score: number;
+  vector?: number[];
 }
 
 export interface VectorSearchParams {
@@ -35,6 +36,7 @@ export interface VectorSearchParams {
   limit: number;
   filter?: VectorSearchFilter;
   scoreThreshold?: number;
+  withVector?: boolean;
 }
 
 export interface HybridSearchParams extends VectorSearchParams {
@@ -140,6 +142,7 @@ export class ArticleVectorStore implements OnModuleInit {
     limit,
     filter,
     scoreThreshold,
+    withVector,
   }: HybridSearchParams): Promise<VectorSearchHit[]> {
     const sparseVector = computeSparseVector(queryText);
     const prefetchLimit = limit * 3;
@@ -163,11 +166,13 @@ export class ArticleVectorStore implements OnModuleInit {
         score_threshold: scoreThreshold,
         filter: this.buildFilter(filter),
         with_payload: true,
+        with_vector: withVector ? [DENSE_VECTOR_NAME] : false,
       });
 
       return results.points.map((result) => ({
         payload: result.payload as unknown as ChunkPayload,
         score: result.score,
+        vector: withVector ? result.vector?.[DENSE_VECTOR_NAME] : undefined,
       }));
     } catch (e) {
       this.logger.error('Hybrid vector search failed', e);

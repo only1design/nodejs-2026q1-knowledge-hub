@@ -25,6 +25,13 @@ export const ragConfig = {
     ),
     topK: Number(process.env.RAG_RETRIEVAL_TOP_K ?? '10'),
   },
+  rerank: {
+    enabled: (process.env.RAG_RERANK_ENABLED ?? 'true') === 'true',
+    candidateMultiplier: Number(
+      process.env.RAG_RERANK_CANDIDATE_MULTIPLIER ?? '3',
+    ),
+    mmrLambda: Number(process.env.RAG_RERANK_MMR_LAMBDA ?? '0.5'),
+  },
 };
 
 export enum geminiEmbeddingTaskType {
