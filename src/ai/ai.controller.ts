@@ -6,7 +6,6 @@ import {
   Param,
   ParseUUIDPipe,
   HttpCode,
-  Req,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -78,6 +77,9 @@ export class AiController {
     @Body() generateDto: GenerateDto,
     @CurrentUser() currentUser: JwtPayloadDto,
   ) {
-    return await this.aiService.generate(currentUser.userId, generateDto);
+    return await this.aiService.sendChatMessage(
+      currentUser.userId,
+      generateDto,
+    );
   }
 }
