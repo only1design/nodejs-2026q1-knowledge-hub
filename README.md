@@ -143,6 +143,61 @@ Reset database (drops all data, re-applies migrations and seed):
 npx prisma migrate reset
 ```
 
+## AI Integration (Gemini API)
+
+The app integrates with Google Gemini API to provide AI-powered article analysis, summarization, and translation.
+
+### Obtaining a Gemini API Key
+
+1. Go to [Google AI Studio](https://aistudio.google.com/apikey)
+2. Sign in with your Google account
+3. Click "Create API Key"
+4. Select or create a Google Cloud project
+5. Copy the generated API key
+
+### Model
+
+The app uses `gemini-3-flash-preview` by default. You can change the model via the `GEMINI_MODEL` environment variable in `.env`.
+
+### Setup
+
+1. Copy `.env.example` to `.env` (if not done already):
+   ```
+   cp .env.example .env
+   ```
+
+2. Set your Gemini API key in `.env`:
+   ```
+   GEMINI_API_KEY=your-gemini-api-key
+   ```
+
+3. (Optional) Adjust AI-specific variables in `.env`:
+
+   | Variable | Default | Description |
+   |---|---|---|
+   | `GEMINI_API_KEY` | — | **Required.** Your Gemini API key |
+   | `GEMINI_API_BASE_URL` | `https://generativelanguage.googleapis.com` | Gemini API base URL |
+   | `GEMINI_MODEL` | `gemini-3-flash-preview` | Model to use |
+   | `AI_RATE_LIMIT_RPM` | `20` | Max AI requests per minute per client |
+   | `AI_CACHE_TTL_SEC` | `300` | Cache TTL for AI responses in seconds |
+
+4. Start the app:
+   ```
+   docker compose up --build
+   ```
+
+### AI Endpoints
+
+All endpoints require authentication (Bearer token). See OpenAPI docs at http://localhost:4000/doc/ for full details.
+
+### Known Limitations
+
+- **Free-tier quotas**: Google AI Studio free tier has rate and token limits that vary per model (e.g. 5 RPM, 250K TPM, 20 RPD for some models). If you exceed these limits, requests will return 503 after retries. You can switch to a different model via the `GEMINI_MODEL` environment variable to get a fresh set of quotas or higher limits.
+- **Latency**: Gemini API responses typically take 1-5 seconds depending on content length and model load.
+- **Regional availability**: Gemini API may not be available in all regions. Check [Google AI availability](https://ai.google.dev/available_regions) for details.
+- **In-memory state**: Cache, chat sessions, and usage stats are stored in memory and reset on app restart.
+- **Chat sessions**: Each authenticated user has one chat session for the `/ai/generate` endpoint. Sessions are not persisted.
+
 ## Logging
 
 The app logs to both console and file (`logs/app.log`). Log files rotate automatically when exceeding `LOG_MAX_FILE_SIZE` (default 1024 KB). Rotated files are named `app-{timestamp}.log`.
