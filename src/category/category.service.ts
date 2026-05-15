@@ -1,6 +1,6 @@
 import { Transactional } from '@nestjs-cls/transactional';
 import { Injectable } from '@nestjs/common';
-import { NotFoundError } from '../errors/app.errors';
+import { NotFoundError } from '../common/errors/app.errors';
 import { randomUUID } from 'node:crypto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { CategoryRepository } from './category.repository';

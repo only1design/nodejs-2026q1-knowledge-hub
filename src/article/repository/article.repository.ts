@@ -1,5 +1,5 @@
-import { BaseRepository } from '../common/base.repository';
-import { Article } from './entities/article.entity';
+import { BaseRepository } from '../../common/repository/base.repository';
+import { Article } from '../entities/article.entity';
 
 export interface ArticleFilter {
   status?: string;

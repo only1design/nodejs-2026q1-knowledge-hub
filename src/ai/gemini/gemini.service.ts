@@ -11,8 +11,8 @@ import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import {
   InternalServiceError,
   ServiceUnavailableError,
-} from '../errors/app.errors';
-import { aiConfig } from './ai.constants';
+} from '../../common/errors/app.errors';
+import { aiConfig } from '../ai.constants';
 
 @Injectable()
 export class GeminiService {
@@ -106,16 +106,14 @@ export class GeminiService {
     for (let attempt = 0; attempt <= aiConfig.maxRetries; attempt++) {
       try {
         const response = await fn();
+        const hasMetadata =
+          typeof response === 'object' && 'usageMetadata' in response;
 
         this.latencyMs.push(Date.now() - start);
 
-        if (
-          response &&
-          typeof response === 'object' &&
-          'usageMetadata' in response
-        ) {
-          const meta = (response as unknown as GenerateContentResponse)
-            .usageMetadata;
+        if (hasMetadata) {
+          const meta =
+            response.usageMetadata as GenerateContentResponse['usageMetadata'];
           if (meta) {
             this.tokenUsage.promptTokens += meta.promptTokenCount ?? 0;
             this.tokenUsage.candidatesTokens += meta.candidatesTokenCount ?? 0;

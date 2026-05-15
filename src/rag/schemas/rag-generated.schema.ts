@@ -13,7 +13,7 @@ export const ragChatResponseSchema = z.object({
       z
         .number()
         .describe(
-          'The 1-based index of a source from the <sources> block that was used to produce the answer. ' +
+          'The 0-based index of a source from the <sources> block that was used to produce the answer. ' +
             'Only include indexes of sources that were actually referenced.',
         ),
     )

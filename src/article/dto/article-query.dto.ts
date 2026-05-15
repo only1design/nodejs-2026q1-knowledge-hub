@@ -1,7 +1,7 @@
 import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { CreateArticleDto } from './create-article.dto';
 import { IntersectionType, PartialType, PickType } from '@nestjs/mapped-types';
-import { PaginationQueryDto } from '../../common/pagination-query.dto';
+import { PaginationQueryDto } from '../../common/pagination/pagination-query.dto';
 
 export class ArticleQueryDto extends IntersectionType(
   PaginationQueryDto,

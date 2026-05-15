@@ -11,3 +11,16 @@ export const aiConfig = {
   rateLimit: Number(process.env.AI_RATE_LIMIT_RPM || '20'),
   cacheTtl: Number(process.env.AI_CACHE_TTL_SEC || '300') * 1000,
 };
+
+export enum LlmResponseMaxLength {
+  SHORT = 'short',
+  MEDIUM = 'medium',
+  DETAILED = 'detailed',
+}
+
+export enum AnalyzeTask {
+  REVIEW = 'review',
+  BUGS = 'bugs',
+  OPTIMIZE = 'optimize',
+  EXPLAIN = 'explain',
+}

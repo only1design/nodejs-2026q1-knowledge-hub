@@ -1,27 +1,28 @@
 import { ConversationMessage } from '../conversation/conversation.store';
 import { VectorSearchHit } from '../vector-store/article-vector.store';
 
-export const ragGroundedPrompt = (
-  question: string,
-  hits: VectorSearchHit[],
-  history: ConversationMessage[],
-): string => {
-  const sources = hits
+const formatSources = (hits: VectorSearchHit[]) =>
+  hits
     .map(
-      (hit, i) => `
-<source index="${i}" articleId="${hit.payload.articleId}">
+      (hit, i) =>
+        `<source index="${i}" articleId="${hit.payload.articleId}">
   <title>${hit.payload.articleTitle}</title>
   <chunk>${hit.payload.chunk}</chunk>
 </source>`,
     )
     .join('\n');
 
-  const conversationHistory =
-    history.length > 0
-      ? history.map((m) => `<${m.role}>${m.content}</${m.role}>`).join('\n')
-      : '<empty>No previous messages.</empty>';
+const formatHistory = (history: ConversationMessage[]) =>
+  history.length > 0
+    ? history.map((m) => `<${m.role}>${m.content}</${m.role}>`).join('\n')
+    : '<empty>No previous messages.</empty>';
 
-  return `
+export const ragGroundedPrompt = (
+  question: string,
+  hits: VectorSearchHit[],
+  history: ConversationMessage[],
+) =>
+  `
 <role>
 You are a knowledgeable assistant for the Knowledge Hub — a platform that stores curated articles.
 Your sole purpose is to answer questions using the content provided in the <sources> section below.
@@ -39,13 +40,12 @@ You do not use any external knowledge beyond what is explicitly stated in those 
 </instructions>
 
 <sources>
-${sources}
+${formatSources(hits)}
 </sources>
 
 <conversation_history>
-${conversationHistory}
+${formatHistory(history)}
 </conversation_history>
 
 <question>${question}</question>
 `.trim();
-};

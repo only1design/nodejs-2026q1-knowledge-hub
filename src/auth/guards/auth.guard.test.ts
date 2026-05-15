@@ -1,5 +1,5 @@
 import { ExecutionContext } from '@nestjs/common';
-import { UnauthorizedError } from '../errors/app.errors';
+import { UnauthorizedError } from '../../common/errors/app.errors';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { Test } from '@nestjs/testing';

@@ -3,7 +3,7 @@ import {
   ForbiddenError,
   UnauthorizedError,
   ValidationError,
-} from '../errors/app.errors';
+} from '../common/errors/app.errors';
 import { JwtService } from '@nestjs/jwt';
 import { Test } from '@nestjs/testing';
 import * as bcrypt from 'bcrypt';

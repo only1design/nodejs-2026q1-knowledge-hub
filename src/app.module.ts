@@ -7,7 +7,7 @@ import { UserModule } from './user/user.module';
 import { ArticleModule } from './article/article.module';
 import { CategoryModule } from './category/category.module';
 import { CommentModule } from './comment/comment.module';
-import { LoggingMiddleware } from './common/logging.middleware';
+import { LoggingMiddleware } from './common/logging/logging.middleware';
 import { PrismaModule } from './prisma/prisma.module';
 import { PrismaService } from './prisma/prisma.service';
 import { AuthModule } from './auth/auth.module';

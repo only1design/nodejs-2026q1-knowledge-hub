@@ -1,7 +1,7 @@
 import { Test } from '@nestjs/testing';
 import { UserRole } from '../../generated/prisma/enums';
-import { ForbiddenError, NotFoundError } from '../errors/app.errors';
-import { UserRepository } from './user.repository';
+import { ForbiddenError, NotFoundError } from '../common/errors/app.errors';
+import { UserRepository } from './repository/user.repository';
 import { CRYPT_SALT, UserService } from './user.service';
 import * as bcrypt from 'bcrypt';
 

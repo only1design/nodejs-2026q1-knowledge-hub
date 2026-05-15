@@ -4,7 +4,7 @@ import { ArticleModule } from '../article/article.module';
 import { aiConfig } from './ai.constants';
 import { AiService } from './ai.service';
 import { AiController } from './ai.controller';
-import { GeminiService } from './gemini.service';
+import { GeminiService } from './gemini/gemini.service';
 
 @Module({
   imports: [

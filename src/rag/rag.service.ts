@@ -1,9 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
-import { GeminiService } from '../ai/gemini.service';
+import { GeminiService } from '../ai/gemini/gemini.service';
 import { ArticleService } from '../article/article.service';
 import { ArticleStatus } from '../article/entities/article.entity';
-import { NotFoundError, ServiceUnavailableError } from '../errors/app.errors';
+import {
+  NotFoundError,
+  ServiceUnavailableError,
+} from '../common/errors/app.errors';
 import { chunkArticle } from './chunking/article-chunker';
 import {
   ConversationRole,

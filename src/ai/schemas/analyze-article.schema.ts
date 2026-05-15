@@ -8,9 +8,9 @@ export const analyzeArticleSchema = z.object({
     z.string().describe('A single actionable improvement suggestion'),
   ),
   severity: z
-    .enum(['low', 'medium', 'high'])
+    .enum(['info', 'warning', 'error'])
     .describe(
-      'Overall severity: low — minor suggestions, medium — notable issues, high — critical problems',
+      'Overall severity: info — minor suggestions, warning — notable issues, error — critical problems',
     ),
 });
 

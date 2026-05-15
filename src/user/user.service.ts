@@ -1,12 +1,12 @@
 import { Transactional } from '@nestjs-cls/transactional';
 import { Injectable } from '@nestjs/common';
-import { ForbiddenError, NotFoundError } from '../errors/app.errors';
+import { ForbiddenError, NotFoundError } from '../common/errors/app.errors';
 import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
 import { UserRole } from 'generated/prisma/enums';
 import { User } from './entities/user.entity';
-import { UserRepository } from './user.repository';
+import { UserRepository } from './repository/user.repository';
 import { randomUUID } from 'node:crypto';
 
 export const CRYPT_SALT = parseInt(process.env.CRYPT_SALT || '10');

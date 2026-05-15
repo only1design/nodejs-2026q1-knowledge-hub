@@ -83,7 +83,7 @@ npm run format
 Application image size: 101.18 MB (Compressed) and 492.98 MB (Plain)-
 [Docker Hub Repository](https://hub.docker.com/repository/docker/245091236523498/knowledge-hub-app/general)
 
-The Docker Scout scan revealed no critical (C) vulnerabilities. See the full report in [scout-report.txt](scout-report.txt).
+The Docker Scout scan revealed no critical (C) vulnerabilities. See the full report in [scout-report.txt](doc/scout-report.txt).
 
 ### Setup
 

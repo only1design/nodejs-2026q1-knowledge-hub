@@ -11,8 +11,8 @@ import {
   ParseUUIDPipe,
 } from '@nestjs/common';
 import { UserRole } from '../../generated/prisma/enums';
-import { Role } from '../auth/role.decorator';
-import { paginate } from '../common/paginate';
+import { Role } from '../auth/role/role.decorator';
+import { paginate } from '../common/pagination/paginate';
 import { CommentService } from './comment.service';
 import { CommentQueryDto } from './dto/comment-query.dto';
 import { CreateCommentDto } from './dto/create-comment.dto';

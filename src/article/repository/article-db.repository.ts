@@ -2,10 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { TransactionHost } from '@nestjs-cls/transactional';
 import { TransactionalAdapterPrisma } from '@nestjs-cls/transactional-adapter-prisma';
 import { randomUUID } from 'node:crypto';
-import { Prisma } from '../../generated/prisma/client';
-import { DbBaseRepository } from '../common/base-db.repository';
+import { Prisma } from '../../../generated/prisma/client';
+import { DbBaseRepository } from '../../common/repository/base-db.repository';
 import { ArticleFilter, ArticleRepository } from './article.repository';
-import { Article } from './entities/article.entity';
+import { Article } from '../entities/article.entity';
 
 @Injectable()
 export class ArticleDbRepository

@@ -1,7 +1,7 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { QdrantClient } from '@qdrant/js-client-rest';
 import { randomUUID } from 'node:crypto';
-import { ServiceUnavailableError } from '../../errors/app.errors';
+import { ServiceUnavailableError } from '../../common/errors/app.errors';
 import { ragConfig } from '../rag.constants';
 import { computeSparseVector } from './sparse-vectorizer';
 
