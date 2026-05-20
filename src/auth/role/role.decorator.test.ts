@@ -1,4 +1,4 @@
-import { UserRole } from '../../generated/prisma/enums';
+import { UserRole } from '../../../generated/prisma/enums';
 import { ROLE_KEY, Role } from './role.decorator';
 
 describe('Role decorator', () => {

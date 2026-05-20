@@ -1,7 +1,7 @@
 import { IsString, IsUUID } from 'class-validator';
 import { IntersectionType } from '@nestjs/mapped-types';
 import { Article } from '../../article/entities/article.entity';
-import { PaginationQueryDto } from '../../common/pagination-query.dto';
+import { PaginationQueryDto } from '../../common/pagination/pagination-query.dto';
 
 class CommentFilterDto {
   @IsString()

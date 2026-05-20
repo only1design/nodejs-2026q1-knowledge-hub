@@ -1,8 +1,8 @@
 import { createMock } from '@golevelup/ts-vitest';
-import { ForbiddenError, NotFoundError } from '../errors/app.errors';
+import { ForbiddenError, NotFoundError } from '../common/errors/app.errors';
 import { Test } from '@nestjs/testing';
 import { UserRole } from '../../generated/prisma/enums';
-import { ArticleRepository } from './article.repository';
+import { ArticleRepository } from './repository/article.repository';
 import { ArticleService } from './article.service';
 import { ArticleStatus } from './entities/article.entity';
 

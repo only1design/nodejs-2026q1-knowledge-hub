@@ -1,10 +1,13 @@
 import { Transactional } from '@nestjs-cls/transactional';
 import { Injectable } from '@nestjs/common';
-import { ForbiddenError, NotFoundError } from '../errors/app.errors';
+import { ForbiddenError, NotFoundError } from '../common/errors/app.errors';
 import { randomUUID } from 'node:crypto';
 import { UserRole } from '../../generated/prisma/enums';
 import { JwtPayloadDto } from '../auth/dto/jwt-payload.dto';
-import { ArticleFilter, ArticleRepository } from './article.repository';
+import {
+  ArticleFilter,
+  ArticleRepository,
+} from './repository/article.repository';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
 import { Article } from './entities/article.entity';

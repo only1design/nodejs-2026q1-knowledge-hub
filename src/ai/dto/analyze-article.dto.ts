@@ -1,5 +1,5 @@
 import { IsOptional, IsEnum } from 'class-validator';
-import { AnalyzeTask } from '../ai.enums';
+import { AnalyzeTask } from '../ai.constants';
 
 export class AnalyzeArticleDto {
   @IsOptional()

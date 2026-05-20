@@ -12,9 +12,9 @@ import {
   Query,
 } from '@nestjs/common';
 import { UserRole } from '../../generated/prisma/enums';
-import { Role } from '../auth/role.decorator';
-import { PaginationQueryDto } from '../common/pagination-query.dto';
-import { paginate } from '../common/paginate';
+import { Role } from '../auth/role/role.decorator';
+import { PaginationQueryDto } from '../common/pagination/pagination-query.dto';
+import { paginate } from '../common/pagination/paginate';
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';

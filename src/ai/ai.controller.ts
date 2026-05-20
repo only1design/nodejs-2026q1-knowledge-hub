@@ -10,10 +10,10 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { SkipThrottle, Throttle } from '@nestjs/throttler';
-import { CurrentUser } from '../auth/auth.decorators';
+import { CurrentUser } from '../auth/decorators/auth.decorators';
 import { JwtPayloadDto } from '../auth/dto/jwt-payload.dto';
-import { AiThrottlerGuard } from './ai-throttler.guard';
-import { aiUsageInterceptor } from './ai-usage.interceptor';
+import { AiThrottlerGuard } from './guards/ai-throttler.guard';
+import { aiUsageInterceptor } from './interceptors/ai-usage.interceptor';
 import { aiConfig } from './ai.constants';
 import { AiService } from './ai.service';
 import { AnalyzeArticleDto } from './dto/analyze-article.dto';

@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { GeminiService } from '../ai/gemini.service';
+import { GeminiService } from '../ai/gemini/gemini.service';
 import { ArticleModule } from '../article/article.module';
 import { ConversationStore } from './conversation/conversation.store';
 import { RagService } from './rag.service';

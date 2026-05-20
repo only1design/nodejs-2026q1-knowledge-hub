@@ -12,9 +12,9 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { UserRole } from '../../generated/prisma/enums';
-import { Role } from '../auth/role.decorator';
-import { PaginationQueryDto } from '../common/pagination-query.dto';
-import { paginate } from '../common/paginate';
+import { Role } from '../auth/role/role.decorator';
+import { PaginationQueryDto } from '../common/pagination/pagination-query.dto';
+import { paginate } from '../common/pagination/paginate';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserPasswordDto } from './dto/update-user-password.dto';

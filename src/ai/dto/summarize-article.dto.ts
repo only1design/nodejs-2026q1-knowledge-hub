@@ -1,5 +1,5 @@
 import { IsOptional, IsEnum } from 'class-validator';
-import { LlmResponseMaxLength } from '../ai.enums';
+import { LlmResponseMaxLength } from '../ai.constants';
 
 export class SummarizeArticleDto {
   @IsOptional()

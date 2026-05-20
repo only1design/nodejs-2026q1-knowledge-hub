@@ -12,10 +12,10 @@ import {
   Query,
 } from '@nestjs/common';
 import { UserRole } from '../../generated/prisma/enums';
-import { CurrentUser } from '../auth/auth.decorators';
+import { CurrentUser } from '../auth/decorators/auth.decorators';
 import { JwtPayloadDto } from '../auth/dto/jwt-payload.dto';
-import { Role } from '../auth/role.decorator';
-import { paginate } from '../common/paginate';
+import { Role } from '../auth/role/role.decorator';
+import { paginate } from '../common/pagination/paginate';
 import { ArticleService } from './article.service';
 import { ArticleQueryDto } from './dto/article-query.dto';
 import { CreateArticleDto } from './dto/create-article.dto';

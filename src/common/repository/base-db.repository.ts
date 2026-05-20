@@ -1,6 +1,6 @@
 import { TransactionHost } from '@nestjs-cls/transactional';
 import { TransactionalAdapterPrisma } from '@nestjs-cls/transactional-adapter-prisma';
-import { Prisma } from '../../generated/prisma/client';
+import { Prisma } from '../../../generated/prisma/client';
 import { BaseRepository } from './base.repository';
 
 export class DbBaseRepository<T extends { id: string }>

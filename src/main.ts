@@ -10,8 +10,8 @@ import { NestFactory, Reflector } from '@nestjs/core';
 import { SwaggerModule } from '@nestjs/swagger';
 import { appConfig } from './app.constants';
 import { AppModule } from './app.module';
-import { AllExceptionsFilter } from './errors/all-exceptions.filter';
-import { FileRotationLogger } from './logger/file-rotation.logger';
+import { AllExceptionsFilter } from './common/errors/all-exceptions.filter';
+import { FileRotationLogger } from './common/logger/file-rotation.logger';
 import { readFileSync } from 'node:fs';
 import * as path from 'node:path';
 

@@ -1,8 +1,11 @@
 import { forwardRef, HttpStatus, Inject, Injectable } from '@nestjs/common';
-import { AppError, NotFoundError } from '../errors/app.errors';
+import { AppError, NotFoundError } from '../common/errors/app.errors';
 import { randomUUID } from 'node:crypto';
 import { ArticleService } from '../article/article.service';
-import { CommentFilter, CommentRepository } from './comment.repository';
+import {
+  CommentFilter,
+  CommentRepository,
+} from './repository/comment.repository';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { Comment } from './entities/comment.entity';
 

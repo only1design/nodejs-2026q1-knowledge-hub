@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { InMemoryBaseRepository } from '../common/base-memory.repository';
+import { InMemoryBaseRepository } from '../../common/repository/base-memory.repository';
 import { CommentRepository } from './comment.repository';
-import { Comment } from './entities/comment.entity';
+import { Comment } from '../entities/comment.entity';
 
 @Injectable()
 export class InMemoryCommentRepository

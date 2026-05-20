@@ -1,7 +1,7 @@
 import { ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Test } from '@nestjs/testing';
-import { UserRole } from '../../generated/prisma/enums';
+import { UserRole } from '../../../generated/prisma/enums';
 import { RoleGuard } from './role.guard';
 import { createMock } from '@golevelup/ts-vitest';
 
