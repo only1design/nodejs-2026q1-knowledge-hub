@@ -6,6 +6,7 @@ export interface ArticleFilter {
   categoryId?: string;
   tag?: string;
   authorId?: string;
+  ids?: string[];
 }
 
 export abstract class ArticleRepository extends BaseRepository<Article> {

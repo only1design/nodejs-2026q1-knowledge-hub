@@ -1,12 +1,19 @@
 import 'dotenv/config';
+import * as bcrypt from 'bcrypt';
 import { Pool } from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
-import { PrismaClient } from '../generated/prisma/client';
+import { ArticleStatus, PrismaClient } from '../generated/prisma/client';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
+const data = JSON.parse(readFileSync(join(__dirname, 'data.json'), 'utf-8'));
 
 const connectionString = `${process.env.DATABASE_URL}`;
 const pool = new Pool({ connectionString });
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
+
+const CRYPT_SALT = parseInt(process.env.CRYPT_SALT || '10');
 
 async function main() {
   const now = BigInt(Date.now());
@@ -18,7 +25,7 @@ async function main() {
     create: {
       id: aliceId,
       login: 'alice',
-      password: 'alice123',
+      password: await bcrypt.hash('alice123', CRYPT_SALT),
       role: 'admin',
       createdAt: now,
       updatedAt: now,
@@ -32,7 +39,7 @@ async function main() {
     create: {
       id: davidId,
       login: 'david',
-      password: 'david123',
+      password: await bcrypt.hash('david123', CRYPT_SALT),
       role: 'editor',
       createdAt: now,
       updatedAt: now,
@@ -112,87 +119,81 @@ async function main() {
     }),
   ];
 
-  const articles = [
-    await prisma.article.upsert({
-      where: { id: '12f4bc32-302a-459c-9ded-40899358194a' },
-      update: {},
-      create: {
-        id: '12f4bc32-302a-459c-9ded-40899358194a',
-        title: 'Getting Started with Prisma',
-        content: 'A comprehensive guide to using Prisma ORM with NestJS',
-        status: 'published',
-        authorId: aliceId,
-        categoryId: categories[0].id,
-        createdAt: now,
-        updatedAt: now,
-        tags: { connect: [{ id: tags[0].id }, { id: tags[1].id }] },
-      },
-    }),
-    await prisma.article.upsert({
-      where: { id: '13f4bc32-302a-459c-9ded-40899358194a' },
-      update: {},
-      create: {
-        id: '13f4bc32-302a-459c-9ded-40899358194a',
-        title: 'Breaking: New Node.js Release',
-        content: 'Node.js 24 has been released with exciting new features',
-        status: 'published',
-        authorId: davidId,
-        categoryId: categories[1].id,
-        createdAt: now,
-        updatedAt: now,
-        tags: { connect: [{ id: tags[2].id }, { id: tags[4].id }] },
-      },
-    }),
-    await prisma.article.upsert({
-      where: { id: '14f4bc32-302a-459c-9ded-40899358194a' },
-      update: {},
-      create: {
-        id: '14f4bc32-302a-459c-9ded-40899358194a',
-        title: 'Football Season Recap',
-        content: 'A look back at the highlights of the football season',
-        status: 'archived',
-        authorId: aliceId,
-        categoryId: categories[2].id,
-        createdAt: now,
-        updatedAt: now,
-        tags: { connect: [{ id: tags[0].id }, { id: tags[3].id }] },
-      },
-    }),
-    await prisma.article.upsert({
-      where: { id: '15f4bc32-302a-459c-9ded-40899358194a' },
-      update: {},
-      create: {
-        id: '15f4bc32-302a-459c-9ded-40899358194a',
-        title: 'Docker Best Practices',
-        content:
-          'Draft article about Docker multi-stage builds and optimization',
-        status: 'draft',
-        authorId: davidId,
-        categoryId: categories[0].id,
-        createdAt: now,
-        updatedAt: now,
-        tags: { connect: [{ id: tags[2].id }] },
-      },
-    }),
-    await prisma.article.upsert({
-      where: { id: '16f4bc32-302a-459c-9ded-40899358194a' },
-      update: {},
-      create: {
-        id: '16f4bc32-302a-459c-9ded-40899358194a',
-        title: 'Understanding Event Loop in Node.js',
-        content:
-          'The event loop is the core mechanism that allows Node.js to perform non-blocking I/O operations despite JavaScript being single-threaded. It works by offloading operations to the system kernel whenever possible. The loop has several phases: timers, pending callbacks, idle/prepare, poll, check, and close callbacks. A common mistake is blocking the event loop with synchronous operations like heavy computations or synchronous file reads, which freezes the entire application.',
-        status: 'published',
-        authorId: aliceId,
-        categoryId: categories[2].id,
-        createdAt: now,
-        updatedAt: now,
-        tags: {
-          connect: [{ id: tags[1].id }, { id: tags[3].id }, { id: tags[4].id }],
-        },
-      },
-    }),
+  const articleMeta: Array<{
+    authorId: string;
+    categoryId: string;
+    tagIds: string[];
+    status: ArticleStatus;
+  }> = [
+    {
+      authorId: aliceId,
+      categoryId: categories[0].id,
+      tagIds: [tags[0].id, tags[1].id],
+      status: ArticleStatus.published,
+    },
+    {
+      authorId: davidId,
+      categoryId: categories[1].id,
+      tagIds: [tags[0].id, tags[3].id],
+      status: ArticleStatus.published,
+    },
+    {
+      authorId: aliceId,
+      categoryId: categories[2].id,
+      tagIds: [tags[1].id, tags[2].id],
+      status: ArticleStatus.published,
+    },
+    {
+      authorId: davidId,
+      categoryId: categories[1].id,
+      tagIds: [tags[0].id, tags[2].id],
+      status: ArticleStatus.published,
+    },
+    {
+      authorId: aliceId,
+      categoryId: categories[0].id,
+      tagIds: [tags[4].id],
+      status: ArticleStatus.published,
+    },
+    {
+      authorId: davidId,
+      categoryId: categories[0].id,
+      tagIds: [tags[2].id, tags[3].id],
+      status: ArticleStatus.published,
+    },
+    {
+      authorId: aliceId,
+      categoryId: categories[1].id,
+      tagIds: [tags[1].id, tags[4].id],
+      status: ArticleStatus.draft,
+    },
+    {
+      authorId: davidId,
+      categoryId: categories[0].id,
+      tagIds: [tags[0].id, tags[4].id],
+      status: ArticleStatus.archived,
+    },
   ];
+
+  const articles = await Promise.all(
+    data.articles.map((article, i) =>
+      prisma.article.upsert({
+        where: { id: article.id },
+        update: {},
+        create: {
+          id: article.id,
+          title: article.title,
+          content: article.content,
+          status: articleMeta[i].status,
+          authorId: articleMeta[i].authorId,
+          categoryId: articleMeta[i].categoryId,
+          createdAt: now,
+          updatedAt: now,
+          tags: { connect: articleMeta[i].tagIds.map((id) => ({ id })) },
+        },
+      }),
+    ),
+  );
 
   const comments = [
     await prisma.comment.upsert({

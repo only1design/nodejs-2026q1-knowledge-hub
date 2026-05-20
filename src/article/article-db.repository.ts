@@ -71,6 +71,7 @@ export class ArticleDbRepository
     if (filter?.categoryId) where.categoryId = filter.categoryId;
     if (filter?.authorId) where.authorId = filter.authorId;
     if (filter?.tag) where.tags = { some: { name: filter.tag } };
+    if (filter?.ids?.length) where.id = { in: filter.ids };
 
     const results = await this.model.findMany({
       where,

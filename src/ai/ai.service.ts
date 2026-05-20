@@ -163,9 +163,9 @@ export class AiService {
     });
   }
 
-  async generate(userId: string, generateDto: GenerateDto) {
-    const response = await this.geminiService.sendMessage(
-      userId,
+  async sendChatMessage(sessionId: string, generateDto: GenerateDto) {
+    const response = await this.geminiService.sendChatMessage(
+      sessionId,
       generateDto.prompt,
     );
 

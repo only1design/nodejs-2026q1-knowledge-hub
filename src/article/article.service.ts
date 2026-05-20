@@ -71,4 +71,11 @@ export class ArticleService {
   async exist(id: Article['id']) {
     return Boolean(await this.articleRepository.findById(id));
   }
+
+  async markIndexed(
+    id: Article['id'],
+    indexed: { lastIndexedAt: bigint; lastIndexedHash: string },
+  ) {
+    return await this.articleRepository.update(id, indexed);
+  }
 }
