@@ -1,4 +1,5 @@
-import 'dotenv/config';
+import { config } from 'dotenv';
+config({ path: 'config/.env.local' });
 
 (BigInt.prototype as any).toJSON = function () {
   return Number(this);

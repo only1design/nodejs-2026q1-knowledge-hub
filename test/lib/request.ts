@@ -1,5 +1,7 @@
+import { config } from 'dotenv';
 import * as request from 'supertest';
-import 'dotenv/config';
+
+config({ path: 'config/.env.local' });
 
 const port = process.env.PORT || 4000;
 
