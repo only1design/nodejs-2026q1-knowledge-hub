@@ -7,7 +7,7 @@ services:
       args:
         PORT: ${PORT}
     env_file:
-      - .env
+      - config/.env.docker
     ports:
       - "${PORT}:${PORT}"
     depends_on:

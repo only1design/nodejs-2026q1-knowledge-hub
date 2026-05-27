@@ -19,7 +19,7 @@ async function main() {
   const now = BigInt(Date.now());
 
   const aliceId = '2ff4bc32-302a-459c-9ded-40899358194a';
-  const alice = await prisma.user.upsert({
+  await prisma.user.upsert({
     where: { id: aliceId },
     update: {},
     create: {
@@ -33,7 +33,7 @@ async function main() {
   });
 
   const davidId = '3ff4bc32-302a-459c-9ded-40899358194a';
-  const david = await prisma.user.upsert({
+  await prisma.user.upsert({
     where: { id: davidId },
     update: {},
     create: {
@@ -195,43 +195,39 @@ async function main() {
     ),
   );
 
-  const comments = [
-    await prisma.comment.upsert({
-      where: { id: '17f4bc32-302a-459c-9ded-40899358194a' },
-      update: {},
-      create: {
-        id: '17f4bc32-302a-459c-9ded-40899358194a',
-        content: 'Great introduction to Prisma!',
-        authorId: davidId,
-        articleId: articles[0].id,
-        createdAt: now,
-      },
-    }),
-    await prisma.comment.upsert({
-      where: { id: '18f4bc32-302a-459c-9ded-40899358194a' },
-      update: {},
-      create: {
-        id: '18f4bc32-302a-459c-9ded-40899358194a',
-        content: 'Exciting news about Node.js 24!',
-        authorId: aliceId,
-        articleId: articles[1].id,
-        createdAt: now,
-      },
-    }),
-    await prisma.comment.upsert({
-      where: { id: '19f4bc32-302a-459c-9ded-40899358194a' },
-      update: {},
-      create: {
-        id: '19f4bc32-302a-459c-9ded-40899358194a',
-        content: 'What a season it was!',
-        authorId: davidId,
-        articleId: articles[2].id,
-        createdAt: now,
-      },
-    }),
-  ];
-
-  console.log({ alice, david, categories, tags, articles, comments });
+  await prisma.comment.upsert({
+    where: { id: '17f4bc32-302a-459c-9ded-40899358194a' },
+    update: {},
+    create: {
+      id: '17f4bc32-302a-459c-9ded-40899358194a',
+      content: 'Great introduction to Prisma!',
+      authorId: davidId,
+      articleId: articles[0].id,
+      createdAt: now,
+    },
+  });
+  await prisma.comment.upsert({
+    where: { id: '18f4bc32-302a-459c-9ded-40899358194a' },
+    update: {},
+    create: {
+      id: '18f4bc32-302a-459c-9ded-40899358194a',
+      content: 'Exciting news about Node.js 24!',
+      authorId: aliceId,
+      articleId: articles[1].id,
+      createdAt: now,
+    },
+  });
+  await prisma.comment.upsert({
+    where: { id: '19f4bc32-302a-459c-9ded-40899358194a' },
+    update: {},
+    create: {
+      id: '19f4bc32-302a-459c-9ded-40899358194a',
+      content: 'What a season it was!',
+      authorId: davidId,
+      articleId: articles[2].id,
+      createdAt: now,
+    },
+  });
 }
 
 main()

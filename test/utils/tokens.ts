@@ -1,5 +1,7 @@
+import { config } from 'dotenv';
 import { sign, SignOptions } from 'jsonwebtoken';
-import 'dotenv/config';
+
+config({ path: 'config/.env.local' });
 
 const refreshTokenSecurityKey = process.env.JWT_REFRESH_SECRET || '';
 

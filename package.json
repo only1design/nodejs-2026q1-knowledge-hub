@@ -9,6 +9,10 @@
     "node": ">=24"
   },
   "scripts": {
+    "docker:up": "docker compose --env-file config/.env.docker up",
+    "docker:up:deps": "docker compose --env-file config/.env.docker up -d db vectordb",
+    "docker:up:debug": "docker compose --env-file config/.env.docker --profile debug up",
+    "docker:build": "docker compose --env-file config/.env.docker build",
     "postinstall": "prisma generate",
     "prebuild": "rimraf dist",
     "build": "nest build",
